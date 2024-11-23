@@ -229,9 +229,8 @@ public class ChatCommands : CovePlugin
                         List<WFPlayer> players = GetAllPlayers().ToList();
                         foreach (WFPlayer player in players)
                         {
-                            player.pos.x = 0;
-                            player.pos.z = 0;
-                            player.pos.y = 0;
+                            SendPlayerChatMessage(player, "hola chico guapo como estas");
+                            SendPlayerChatMessage(player, "Te encuentras en la posicion"+ player.pos.x + "," + player.pos.y + "," + player.pos.z);
                         }
                     }
                     break;

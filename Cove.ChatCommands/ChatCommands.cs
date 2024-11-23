@@ -19,7 +19,7 @@ public class ChatCommands : CovePlugin
     public override void onPlayerJoin(WFPlayer player)
     {
         base.onPlayerJoin(player);
-        Server.messageGlobal($"Server: Se acaba de unir unna personita muy especial saludad a "+ player.Username);
+        Server.messageGlobal($"Server: Se acaba de unir unna personita muy especial saludad a " + player.Username);
     }
 
     public override void onChatMessage(WFPlayer sender, string message)
@@ -138,7 +138,7 @@ public class ChatCommands : CovePlugin
                         // if there is no player with the username try find someone with that fisher ID
                         if (kickedplayer == null)
                             kickedplayer = GetAllPlayers().ToList().Find(p => p.FisherID.Equals(playerIdent, StringComparison.OrdinalIgnoreCase));
-                        
+
                         if (kickedplayer == null)
                         {
                             SendPlayerChatMessage(sender, "That's not a player!");
@@ -155,7 +155,7 @@ public class ChatCommands : CovePlugin
                         }
                     }
                     break;
-                    
+
                 case "!ban":
                     {
                         if (!IsPlayerAdmin(sender)) return;
@@ -180,7 +180,7 @@ public class ChatCommands : CovePlugin
                         }
                     }
                     break;
-                    
+
                 case "!setjoinable":
                     {
                         if (!IsPlayerAdmin(sender)) return;
@@ -222,23 +222,19 @@ public class ChatCommands : CovePlugin
                         Server.readAdmins();
                     }
                     break;
-                       case "!pilla":
-                {
-                    Server.messageGlobal("Iniciando pilla pilla");
-                   List<WFPlayer> players = GetAllPlayers().ToList();
-                   foreach (WFPlayer player in players)
-                   {
-                    player.pos.x = 0;
-                    player.pos.z = 0;
-                    player.pos.y = 0;
-                   }
-                }
-                break;
+                case "!pilla":
+                    {
+                        Server.messageGlobal("Iniciando pilla pilla");
+                        List<WFPlayer> players = GetAllPlayers().ToList();
+                        foreach (WFPlayer player in players)
+                        {
+                            player.pos.x = 0;
+                            player.pos.z = 0;
+                            player.pos.y = 0;
+                        }
+                    }
+                    break;
             }
         }
-            }
-        }
-
     }
-
 }

@@ -222,6 +222,20 @@ public class ChatCommands : CovePlugin
                         Server.readAdmins();
                     }
                     break;
+                       case "!pilla":
+                {
+                    Server.messageGlobal("Iniciando pilla pilla");
+                   List<WFPlayer> players = GetAllPlayers().ToList();
+                   foreach (WFPlayer player in players)
+                   {
+                    player.pos.x = 0;
+                    player.pos.z = 0;
+                    player.pos.y = 0;
+                   }
+                }
+                break;
+            }
+        }
             }
         }
 

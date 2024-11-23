@@ -42,6 +42,7 @@ public class ChatCommands : CovePlugin
                         SendPlayerChatMessage(sender, "!ban <player> - Bans a player");
                         SendPlayerChatMessage(sender, "!setjoinable <true/false> - Opens or closes the lobby");
                         SendPlayerChatMessage(sender, "!refreshadmins - Refreshes the admins list");
+                        SendPlayerChatMessage(sender, "!pilla - activa el pilla pilla y me la suda");
                     }
                     break;
 

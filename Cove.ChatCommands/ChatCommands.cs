@@ -1,4 +1,6 @@
-﻿using Cove.Server;
+﻿using System.Numerics;
+using Cove.GodotFormat;
+using Cove.Server;
 using Cove.Server.Actor;
 using Cove.Server.Plugins;
 using Steamworks;
@@ -231,10 +233,8 @@ public class ChatCommands : CovePlugin
                         {
                             SendPlayerChatMessage(player, "hola chico guapo como estas");
                             SendPlayerChatMessage(player, "Te encuentras en la posicion"+ player.pos.x + "," + player.pos.y + "," + player.pos.z);
-                            player.pos.x = 0;
-                            player.pos.y = 0;
-                            player.pos.z = 0;
-
+                            Cove.GodotFormat.Vector3 position = new Cove.GodotFormat.Vector3(0,0,0);
+                            player.pos = position;
                         }
                     }
                     break;

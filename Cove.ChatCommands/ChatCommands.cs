@@ -240,11 +240,9 @@ public class ChatCommands : CovePlugin
                             Dictionary<string, object> packet = new Dictionary<string, object>();
                             packet["type"] = "actor_update";
                             packet["actor_id"] = player.InstanceID;
-                            packet["pos"] = new Cove.GodotFormat.Vector3(0, 0, 0); // New position
-                            packet["rot"] = player.rot; // Keep the current rotation
-                            SendPlayerChatMessage(player, "after"+player.pos.x + "," + player.pos.y + "," + player.pos.z);
-                            SendPacketToPlayer(packet, player);
-                            SendPlayerChatMessage(player, "before"+player.pos.x + "," + player.pos.y + "," + player.pos.z);
+                            packet["pos"] = player.pos;
+                            packet["rot"] = player.rot;
+                            Server.sendPacketToPlayers(packet);;
                         }
                     }
                     break;

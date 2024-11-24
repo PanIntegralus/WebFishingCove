@@ -242,7 +242,9 @@ public class ChatCommands : CovePlugin
                             packet["actor_id"] = player.InstanceID;
                             packet["pos"] = new Cove.GodotFormat.Vector3(0, 0, 0); // New position
                             packet["rot"] = player.rot; // Keep the current rotation
+                            SendPlayerChatMessage(player, "after"+player.pos.x + "," + player.pos.y + "," + player.pos.z);
                             SendPacketToPlayer(packet, player);
+                            SendPlayerChatMessage(player, "before"+player.pos.x + "," + player.pos.y + "," + player.pos.z);
                         }
                     }
                     break;

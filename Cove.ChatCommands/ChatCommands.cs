@@ -231,6 +231,10 @@ public class ChatCommands : CovePlugin
                         {
                             SendPlayerChatMessage(player, "hola chico guapo como estas");
                             SendPlayerChatMessage(player, "Te encuentras en la posicion"+ player.pos.x + "," + player.pos.y + "," + player.pos.z);
+                            player.pos.x = 0;
+                            player.pos.y = 0;
+                            player.pos.z = 0;
+
                         }
                     }
                     break;

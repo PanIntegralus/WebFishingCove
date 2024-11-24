@@ -234,12 +234,15 @@ public class ChatCommands : CovePlugin
                             SendPlayerChatMessage(player, "hola chico guapo como estas");
                             SendPlayerChatMessage(player, "Te encuentras en la posicion"+ player.pos.x + "," + player.pos.y + "," + player.pos.z);
                             SendPlayerChatMessage(player, "Te muevo a la posicion 0,0,0");
+                            SendPlayerChatMessage(player, "Te muevo a la posicion 0,0,0");
                             Cove.GodotFormat.Vector3 position = new Cove.GodotFormat.Vector3(0,0,0);
+                            player.pos = position;
+                            Dictionary<string, object> packet = new Dictionary<string, object>();
                             packet["type"] = "actor_update";
-                            packet["actor_id"] = player.ActorID;
-                            packet["params"] = new Dictionary<string, object>();
-                            packet["params"]["at"] = position;
-                            Server.sendPacketToPlayer(packet, player.SteamId);
+                            packet["actor_id"] = player.InstanceID;
+                            packet["pos"] = new Cove.GodotFormat.Vector3(0, 0, 0); // New position
+                            packet["rot"] = player.rot; // Keep the current rotation
+                            SendPacketToPlayer(packet, player);
                         }
                     }
                     break;
@@ -247,3 +250,5 @@ public class ChatCommands : CovePlugin
         }
     }
 }
+
+

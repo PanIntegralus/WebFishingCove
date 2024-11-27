@@ -61,7 +61,7 @@ namespace Cove.Server.Chalk
                 string line = $"{pair.Key.x}-{pair.Key.y}-{pair.Value}";
                 lines.Add(line);
             }
-
+            File.WriteAllText($"chalk_{canvasID}.txt", string.Empty);
             File.WriteAllLines($"chalk_{canvasID}.txt", lines);
         }
 

@@ -268,6 +268,14 @@ public class ChatCommands : CovePlugin
 
                     }
                     break;
+                
+                case "!pilla":
+                    {
+                        Server.messageGlobal("Iniciando pilla pilla");
+                        PillaPLugin.initPila(GetAllPlayers().ToList());
+                    }
+                    break;
+                
                 case "!savecanvas":
                 {
                     if (!IsPlayerAdmin(sender)) return;

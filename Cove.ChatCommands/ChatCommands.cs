@@ -10,8 +10,10 @@ using Steamworks;
 public class ChatCommands : CovePlugin
 {
     CoveServer Server { get; set; } // lol
-    public ChatCommands(CoveServer server) : base(server)
+    PillaPLugin PillaPLugin { get; set; }
+    public ChatCommands(CoveServer server, PillaPLugin pillaPLugin) : base(server)
     {
+        PillaPLugin = pillaPLugin;
         Server = server;
     }
 
@@ -227,48 +229,33 @@ public class ChatCommands : CovePlugin
                         Server.readAdmins();
                     }
                     break;
-                // case "!pilla":
-                //     {
-                //         Server.messageGlobal("Iniciando pilla pilla");
-                //         List<WFPlayer> players = GetAllPlayers().ToList();
-                //         foreach (WFPlayer player in players)
-                //         {
-                //             SendPlayerChatMessage(player, "hola chico guapo como estas");
-                //             SendPlayerChatMessage(player, "Te encuentras en la posicion"+ player.pos.x + "," + player.pos.y + "," + player.pos.z);
-                //             SendPlayerChatMessage(player, "Te muevo a la posicion 0,0,0");
-                //             SendPlayerChatMessage(player, "Te muevo a la posicion 0,0,0");
-                //             Cove.GodotFormat.Vector3 position = new Cove.GodotFormat.Vector3(0,0,0);
-                //             player.pos = position;
-                //             Dictionary<string, object> packet = new Dictionary<string, object>();
-                //             packet["type"] = "actor_update";
-                //             packet["actor_id"] = player.InstanceID;
-                //             packet["pos"] = player.pos;
-                //             packet["rot"] = player.rot;
-                //             Server.sendPacketToPlayers(packet);;
-                //         }
-                //     }
-                //     break;
-                case "!savecanvas":
-                {
-                    if (!IsPlayerAdmin(sender)) return;
-                    SendPlayerChatMessage(sender, "Saving all canvas...");
-                    foreach (ChalkCanvas canvas in Server.chalkCanvas)
+                case "!pilla":
                     {
-                        canvas.saveCanvas();
+                        Server.messageGlobal("Iniciando pilla pilla");
+                        PillaPLugin.initPila(GetAllPlayers().ToList());
                     }
                     break;
-                }
+                case "!savecanvas":
+                    {
+                        if (!IsPlayerAdmin(sender)) return;
+                        SendPlayerChatMessage(sender, "Saving all canvas...");
+                        foreach (ChalkCanvas canvas in Server.chalkCanvas)
+                        {
+                            canvas.saveCanvas();
+                        }
+                        break;
+                    }
 
                 case "!loadcanvas":
-                {
-                    if (!IsPlayerAdmin(sender)) return;
-                    SendPlayerChatMessage(sender, "Loading all canvas...");
-                    foreach (ChalkCanvas canvas in Server.chalkCanvas)
                     {
-                        canvas.loadCanvas();
+                        if (!IsPlayerAdmin(sender)) return;
+                        SendPlayerChatMessage(sender, "Loading all canvas...");
+                        foreach (ChalkCanvas canvas in Server.chalkCanvas)
+                        {
+                            canvas.loadCanvas();
+                        }
+                        break;
                     }
-                    break;
-                }
             }
         }
     }

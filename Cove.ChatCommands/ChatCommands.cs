@@ -6,6 +6,7 @@ using Cove.Server.Actor;
 using Cove.Server.Chalk;
 using Cove.Server.Plugins;
 using Steamworks;
+using System;
 
 public class ChatCommands : CovePlugin
 {
@@ -14,6 +15,9 @@ public class ChatCommands : CovePlugin
     {
         Server = server;
     }
+
+    // save the time the server was started
+    public long serverStartTime = DateTimeOffset.Now.ToUnixTimeSeconds();
 
     public override void onInit()
     {
@@ -46,7 +50,7 @@ public class ChatCommands : CovePlugin
                         SendPlayerChatMessage(sender, "!ban <player> - Bans a player");
                         SendPlayerChatMessage(sender, "!setjoinable <true/false> - Opens or closes the lobby");
                         SendPlayerChatMessage(sender, "!refreshadmins - Refreshes the admins list");
-                        SendPlayerChatMessage(sender, "!pilla - activa el pilla pilla y me la suda");
+                        SendPlayerChatMessage(sender, "!uptime - Shows the server uptime");
                     }
                     break;
 
@@ -227,27 +231,41 @@ public class ChatCommands : CovePlugin
                         Server.readAdmins();
                     }
                     break;
-                // case "!pilla":
-                //     {
-                //         Server.messageGlobal("Iniciando pilla pilla");
-                //         List<WFPlayer> players = GetAllPlayers().ToList();
-                //         foreach (WFPlayer player in players)
-                //         {
-                //             SendPlayerChatMessage(player, "hola chico guapo como estas");
-                //             SendPlayerChatMessage(player, "Te encuentras en la posicion"+ player.pos.x + "," + player.pos.y + "," + player.pos.z);
-                //             SendPlayerChatMessage(player, "Te muevo a la posicion 0,0,0");
-                //             SendPlayerChatMessage(player, "Te muevo a la posicion 0,0,0");
-                //             Cove.GodotFormat.Vector3 position = new Cove.GodotFormat.Vector3(0,0,0);
-                //             player.pos = position;
-                //             Dictionary<string, object> packet = new Dictionary<string, object>();
-                //             packet["type"] = "actor_update";
-                //             packet["actor_id"] = player.InstanceID;
-                //             packet["pos"] = player.pos;
-                //             packet["rot"] = player.rot;
-                //             Server.sendPacketToPlayers(packet);;
-                //         }
-                //     }
-                //     break;
+
+                case "!uptime":
+                    {
+                        long currentTime = DateTimeOffset.Now.ToUnixTimeSeconds();
+                        long uptime = currentTime - serverStartTime;
+
+                        TimeSpan time = TimeSpan.FromSeconds(uptime);
+
+                        int days = time.Days;
+                        int hours = time.Hours;
+                        int minutes = time.Minutes;
+                        int seconds = time.Seconds;
+
+                        string uptimeString = "";
+                        if (days > 0)
+                        {
+                            uptimeString += $"{days} Days, ";
+                        }
+                        if (hours > 0)
+                        {
+                            uptimeString += $"{hours} Hours, ";
+                        }
+                        if ( minutes > 0)
+                        {
+                            uptimeString += $"{minutes} Minutes, ";
+                        }
+                        if (seconds > 0)
+                        {
+                            uptimeString += $"{seconds} Seconds";
+                        }
+
+                        SendPlayerChatMessage(sender, $"Server uptime: {uptimeString}");
+
+                    }
+                    break;
                 case "!savecanvas":
                 {
                     if (!IsPlayerAdmin(sender)) return;

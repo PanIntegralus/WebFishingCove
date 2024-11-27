@@ -11,8 +11,10 @@ using System;
 public class ChatCommands : CovePlugin
 {
     CoveServer Server { get; set; } // lol
-    public ChatCommands(CoveServer server) : base(server)
+    PillaPLugin PillaPLugin { get; set; }
+    public ChatCommands(CoveServer server, PillaPLugin pillaPLugin) : base(server)
     {
+        PillaPLugin = pillaPLugin;
         Server = server;
     }
 
@@ -266,27 +268,34 @@ public class ChatCommands : CovePlugin
 
                     }
                     break;
-                case "!savecanvas":
-                {
-                    if (!IsPlayerAdmin(sender)) return;
-                    SendPlayerChatMessage(sender, "Saving all canvas...");
-                    foreach (ChalkCanvas canvas in Server.chalkCanvas)
+                case "!pilla":
                     {
-                        canvas.saveCanvas();
+                        Server.messageGlobal("Iniciando pilla pilla");
+                        PillaPLugin.initPila(GetAllPlayers().ToList());
                     }
                     break;
-                }
+                
+                case "!savecanvas":
+                    {
+                        if (!IsPlayerAdmin(sender)) return;
+                        SendPlayerChatMessage(sender, "Saving all canvas...");
+                        foreach (ChalkCanvas canvas in Server.chalkCanvas)
+                        {
+                            canvas.saveCanvas();
+                        }
+                        break;
+                    }
 
                 case "!loadcanvas":
-                {
-                    if (!IsPlayerAdmin(sender)) return;
-                    SendPlayerChatMessage(sender, "Loading all canvas...");
-                    foreach (ChalkCanvas canvas in Server.chalkCanvas)
                     {
-                        canvas.loadCanvas();
+                        if (!IsPlayerAdmin(sender)) return;
+                        SendPlayerChatMessage(sender, "Loading all canvas...");
+                        foreach (ChalkCanvas canvas in Server.chalkCanvas)
+                        {
+                            canvas.loadCanvas();
+                        }
+                        break;
                     }
-                    break;
-                }
             }
         }
     }

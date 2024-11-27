@@ -1,4 +1,5 @@
-﻿using System.Numerics;
+﻿using System.Net.Security;
+using System.Numerics;
 using Cove.GodotFormat;
 using Cove.Server;
 using Cove.Server.Actor;
@@ -226,37 +227,48 @@ public class ChatCommands : CovePlugin
                         Server.readAdmins();
                     }
                     break;
-                case "!pilla":
+                // case "!pilla":
+                //     {
+                //         Server.messageGlobal("Iniciando pilla pilla");
+                //         List<WFPlayer> players = GetAllPlayers().ToList();
+                //         foreach (WFPlayer player in players)
+                //         {
+                //             SendPlayerChatMessage(player, "hola chico guapo como estas");
+                //             SendPlayerChatMessage(player, "Te encuentras en la posicion"+ player.pos.x + "," + player.pos.y + "," + player.pos.z);
+                //             SendPlayerChatMessage(player, "Te muevo a la posicion 0,0,0");
+                //             SendPlayerChatMessage(player, "Te muevo a la posicion 0,0,0");
+                //             Cove.GodotFormat.Vector3 position = new Cove.GodotFormat.Vector3(0,0,0);
+                //             player.pos = position;
+                //             Dictionary<string, object> packet = new Dictionary<string, object>();
+                //             packet["type"] = "actor_update";
+                //             packet["actor_id"] = player.InstanceID;
+                //             packet["pos"] = player.pos;
+                //             packet["rot"] = player.rot;
+                //             Server.sendPacketToPlayers(packet);;
+                //         }
+                //     }
+                //     break;
+                case "!savecanvas":
+                {
+                    if (!IsPlayerAdmin(sender)) return;
+                    SendPlayerChatMessage(sender, "Saving all canvas...");
+                    foreach (ChalkCanvas canvas in Server.chalkCanvas)
                     {
-                        Server.messageGlobal("Iniciando pilla pilla");
-                        List<WFPlayer> players = GetAllPlayers().ToList();
-                        foreach (WFPlayer player in players)
-                        {
-                            SendPlayerChatMessage(player, "hola chico guapo como estas");
-                            SendPlayerChatMessage(player, "Te encuentras en la posicion"+ player.pos.x + "," + player.pos.y + "," + player.pos.z);
-                            SendPlayerChatMessage(player, "Te muevo a la posicion 0,0,0");
-                            SendPlayerChatMessage(player, "Te muevo a la posicion 0,0,0");
-                            Cove.GodotFormat.Vector3 position = new Cove.GodotFormat.Vector3(0,0,0);
-                            player.pos = position;
-                            Dictionary<string, object> packet = new Dictionary<string, object>();
-                            packet["type"] = "actor_update";
-                            packet["actor_id"] = player.InstanceID;
-                            packet["pos"] = player.pos;
-                            packet["rot"] = player.rot;
-                            Server.sendPacketToPlayers(packet);;
-                        }
+                        canvas.saveCanvas();
                     }
                     break;
-                case "!canvaslist":
+                }
+
+                case "!loadcanvas":
+                {
+                    if (!IsPlayerAdmin(sender)) return;
+                    SendPlayerChatMessage(sender, "Loading all canvas...");
+                    foreach (ChalkCanvas canvas in Server.chalkCanvas)
                     {
-                        if (!IsPlayerAdmin(sender)) return;
-                        SendPlayerChatMessage(sender, "Canvas list:");
-                        foreach (ChalkCanvas canvas in Server.chalkCanvas)
-                        {
-                            SendPlayerChatMessage(sender, canvas.ToString());
-                        }
+                        canvas.loadCanvas();
                     }
                     break;
+                }
             }
         }
     }

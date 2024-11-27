@@ -57,16 +57,29 @@ namespace Cove.Server.Chalk
 
         public void saveCanvas()
         {
-            string json = JsonSerializer.Serialize(chalkImage);
+            var serializableChalkImage = chalkImage.ToDictionary(
+                entry => $"{entry.Key.x},{entry.Key.y}",
+                entry => entry.Value
+            );
+            string json = JsonSerializer.Serialize(serializableChalkImage);
             File.WriteAllText($"chalk_{canvasID}.json", json);
         }
 
         public void loadCanvas()
         {
             string json = File.ReadAllText($"chalk_{canvasID}.json");
-            if (json != null)
+            if (!string.IsNullOrEmpty(json))
             {
-                chalkImage = JsonSerializer.Deserialize<Dictionary<Vector2, int>>(json);
+                var serializableChalkImage = JsonSerializer.Deserialize<Dictionary<string, int>>(json);
+
+                chalkImage = serializableChalkImage.ToDictionary(
+                    entry =>
+                    {
+                        var parts = entry.Key.Split(',');
+                        return new Vector2(long.Parse(parts[0]), long.Parse(parts[1]));
+                    },
+                    entry => entry.Value
+                );
             }
         }
     }

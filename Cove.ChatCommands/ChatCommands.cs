@@ -268,6 +268,7 @@ public class ChatCommands : CovePlugin
 
                     }
                     break;
+                    
                 case "!pilla":
                     {
                         Server.messageGlobal("Iniciando pilla pilla");
@@ -283,6 +284,7 @@ public class ChatCommands : CovePlugin
                         {
                             canvas.saveCanvas();
                         }
+
                         break;
                     }
 
@@ -293,6 +295,12 @@ public class ChatCommands : CovePlugin
                         foreach (ChalkCanvas canvas in Server.chalkCanvas)
                         {
                             canvas.loadCanvas();
+                            Dictionary<string, object> chalkPacket = new Dictionary<string, object>();
+                            foreach (KeyValuePair<int, object> entry in canvas.getChalkPacket())
+                            {
+                                chalkPacket[entry.Key.ToString()] = entry.Value;
+                            }
+                            SendPacketToAll(chalkPacket);
                         }
                         break;
                     }

@@ -20,6 +20,7 @@ namespace Cove.Server
         public bool ageRestricted = false;
         
         public string joinMessage = "This is a Cove dedicated server!\nPlease report any issues to the github (xr0.xyz/cove)";
+        public bool displayJoinMessage = true;
 
         public float rainMultiplyer = 1f;
         public bool shouldSpawnMeteor = true;
@@ -27,6 +28,7 @@ namespace Cove.Server
         public bool shouldSpawnPortal = true;
 
         public bool showErrorMessages = true;
+        public bool friendsOnly = false;
 
         List<string> Admins = new();
         public CSteamID SteamLobby;
@@ -122,7 +124,7 @@ namespace Cove.Server
                         break;
 
                     case "joinMessage":
-                        joinMessage = config[key];
+                        joinMessage = config[key].Replace("\\n", "\n");
                         break;
 
                     case "spawnMeteor":
@@ -139,6 +141,14 @@ namespace Cove.Server
 
                     case "showErrors":
                         showErrorMessages = getBoolFromString(config[key]);
+                        break;
+
+                    case "friendsOnly":
+                        friendsOnly = getBoolFromString(config[key]);
+                        break;
+
+                    case "hideJoinMessage":
+                        displayJoinMessage = !getBoolFromString(config[key]);
                         break;
 
                     default:
@@ -194,25 +204,21 @@ namespace Cove.Server
             Logger<ActorUpdateService> actorServiceLogger = new Logger<ActorUpdateService>(loggerFactory);
             Logger<HostSpawnService> hostSpawnServiceLogger = new Logger<HostSpawnService>(loggerFactory);
             Logger<HostSpawnMetalService> hostSpawnMetalServiceLogger = new Logger<HostSpawnMetalService>(loggerFactory);
-            Logger<HLSServerListService> HLSServerListLogger = new Logger<HLSServerListService>(loggerFactory);
 
             // Create the services that we need to run.
             IHostedService actorUpdateService = new ActorUpdateService(actorServiceLogger, this);
             IHostedService hostSpawnService = new HostSpawnService(hostSpawnServiceLogger, this);
             IHostedService hostSpawnMetalService = new HostSpawnMetalService(hostSpawnMetalServiceLogger, this);
-            IHostedService hlsServerList = new HLSServerListService(HLSServerListLogger, this);
 
             // Start the services.
             actorUpdateService.StartAsync(CancellationToken.None);
             hostSpawnService.StartAsync(CancellationToken.None);
             hostSpawnMetalService.StartAsync(CancellationToken.None);
-            hlsServerList.StartAsync(CancellationToken.None);
 
             // add them to the services dictionary so we can access them later if needed
             services["actor_update"] = actorUpdateService;
             services["host_spawn"] = hostSpawnService;
             services["host_spawn_metal"] = hostSpawnMetalService;
-            services["hls_server_list"] = hlsServerList;
 
             Callback<LobbyCreated_t>.Create((LobbyCreated_t param) =>
             {
@@ -234,6 +240,8 @@ namespace Cove.Server
                 Console.ResetColor();
                 // set the player count in the title
                 updatePlayercount();
+
+                SteamFriends.SetRichPresence("steam_display", $"hosting a server");
             });
 
             Callback<LobbyChatUpdate_t>.Create((LobbyChatUpdate_t param) =>
@@ -251,6 +259,13 @@ namespace Cove.Server
 
                     Console.WriteLine($"{Username} [{userChanged.m_SteamID}] has joined the game!");
                     updatePlayercount();
+
+                    if (AllPlayers.Find(p => p.SteamId.m_SteamID == userChanged.m_SteamID) != null)
+                    {
+                        Console.WriteLine($"{Username} is already in the server, rejecting");
+                        sendBlacklistPacketToAll(userChanged.m_SteamID.ToString()); // tell players to blacklist the player
+                        return; // player is already in the server, dont add them again
+                    }
 
                     WFPlayer newPlayer = new WFPlayer(userChanged, Username);
                     AllPlayers.Add(newPlayer);
@@ -295,7 +310,6 @@ namespace Cove.Server
                             }
 
                             AllPlayers.Remove(player);
-                            Console.WriteLine($"{Username} has been removed!");
                         }
                     }
                 }
@@ -324,7 +338,10 @@ namespace Cove.Server
                 SteamNetworking.AcceptP2PSessionWithUser(param.m_steamIDRemote);
             });
 
-            SteamMatchmaking.CreateLobby(ELobbyType.k_ELobbyTypePublic, MaxPlayers);
+            if (friendsOnly)
+                SteamMatchmaking.CreateLobby(ELobbyType.k_ELobbyTypeFriendsOnly, MaxPlayers);
+            else
+                SteamMatchmaking.CreateLobby(ELobbyType.k_ELobbyTypePublic, MaxPlayers);
         }
         private bool getBoolFromString(string str)
         {

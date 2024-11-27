@@ -4,22 +4,6 @@ using System.IO;
 
 namespace Cove.Server.Chalk
 {
-    public class SerializableVector2
-    {
-        public float x { get; set; }
-        public float y { get; set; }
-
-        public SerializableVector2(Vector2 vector2)
-        {
-            this.x = vector2.x;
-            this.y = vector2.y;
-        }
-
-        public Vector2 ToVector2()
-        {
-            return new Vector2(x, y);
-        }
-    }
     public class ChalkCanvas
     {
         public long canvasID;
@@ -39,7 +23,7 @@ namespace Cove.Server.Chalk
         {
             Dictionary<int, object> packet = new Dictionary<int, object>();
             ulong i = 0;
-            foreach (KeyValuePair<Vector2, int> entry in chalkImage)
+            foreach (KeyValuePair<Vector2, int> entry in chalkImage.ToDictionary(pair => pair.Key, pair => pair.Value))
             {
                 Dictionary<int, object> arr = new();
                 arr[0] = entry.Key;
@@ -47,8 +31,6 @@ namespace Cove.Server.Chalk
                 packet[(int)i] = arr;
                 i++;
             }
-
-            //CoveServer.printArray(packet);
 
             return packet;
         }

@@ -11,8 +11,10 @@ using System;
 public class ChatCommands : CovePlugin
 {
     CoveServer Server { get; set; } // lol
+    PillaPLugin PillaPLugin { get; set; }
     public ChatCommands(CoveServer server) : base(server)
     {
+        PillaPLugin = new PillaPLugin(server);
         Server = server;
     }
 

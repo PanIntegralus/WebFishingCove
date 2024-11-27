@@ -268,34 +268,33 @@ public class ChatCommands : CovePlugin
 
                     }
                     break;
-                case "!pilla":
+                case "!savecanvas":
+                {
+                    if (!IsPlayerAdmin(sender)) return;
+                    SendPlayerChatMessage(sender, "Saving all canvas...");
+                    foreach (ChalkCanvas canvas in Server.chalkCanvas)
                     {
-                        Server.messageGlobal("Iniciando pilla pilla");
-                        PillaPLugin.initPila(GetAllPlayers().ToList());
+                        canvas.saveCanvas();
                     }
                     break;
-                
-                case "!savecanvas":
-                    {
-                        if (!IsPlayerAdmin(sender)) return;
-                        SendPlayerChatMessage(sender, "Saving all canvas...");
-                        foreach (ChalkCanvas canvas in Server.chalkCanvas)
-                        {
-                            canvas.saveCanvas();
-                        }
-                        break;
-                    }
+                }
 
                 case "!loadcanvas":
+                {
+                    if (!IsPlayerAdmin(sender)) return;
+                    SendPlayerChatMessage(sender, "Loading all canvas...");
+                    foreach (ChalkCanvas canvas in Server.chalkCanvas)
                     {
-                        if (!IsPlayerAdmin(sender)) return;
-                        SendPlayerChatMessage(sender, "Loading all canvas...");
-                        foreach (ChalkCanvas canvas in Server.chalkCanvas)
-                        {
-                            canvas.loadCanvas();
-                        }
-                        break;
+                        canvas.loadCanvas();
+                        Dictionary<string, object> chalkPacket = new Dictionary<string, object>();
+                    foreach (KeyValuePair<int, object> entry in canvas.getChalkPacket())
+                    {
+                        chalkPacket[entry.Key.ToString()] = entry.Value;
                     }
+                    SendPacketToAll(chalkPacket);
+                }
+                    break;
+                }
             }
         }
     }

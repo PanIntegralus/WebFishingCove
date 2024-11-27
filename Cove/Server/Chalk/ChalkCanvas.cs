@@ -5,6 +5,22 @@ using System.Text.Json;
 
 namespace Cove.Server.Chalk
 {
+    public class SerializableVector2
+    {
+        public float x { get; set; }
+        public float y { get; set; }
+
+        public SerializableVector2(Vector2 vector2)
+        {
+            this.x = vector2.x;
+            this.y = vector2.y;
+        }
+
+        public Vector2 ToVector2()
+        {
+            return new Vector2(x, y);
+        }
+    }
     public class ChalkCanvas
     {
         public long canvasID;
@@ -57,29 +73,30 @@ namespace Cove.Server.Chalk
 
         public void saveCanvas()
         {
-            var serializableChalkImage = chalkImage.ToDictionary(
-                entry => $"{entry.Key.x},{entry.Key.y}",
-                entry => entry.Value
-            );
-            string json = JsonSerializer.Serialize(serializableChalkImage);
-            File.WriteAllText($"chalk_{canvasID}.json", json);
+            var serializableDictionary = new Dictionary<SerializableVector2, int>();
+            foreach (var pair in chalkImage)
+            {
+                serializableDictionary[new SerializableVector2(pair.Key)] = pair.Value;
+            }
+
+            string json = JsonSerializer.Serialize(serializableDictionary, new JsonSerializerOptions
+            {
+                WriteIndented = true
+            });
+
+            File.WriteAllText($"canvas_{canvasID}.json", json);
         }
 
         public void loadCanvas()
         {
-            string json = File.ReadAllText($"chalk_{canvasID}.json");
-            if (!string.IsNullOrEmpty(json))
-            {
-                var serializableChalkImage = JsonSerializer.Deserialize<Dictionary<string, int>>(json);
+            string json = File.ReadAllText($"canvas_{canvasID}.json");
 
-                chalkImage = serializableChalkImage.ToDictionary(
-                    entry =>
-                    {
-                        var parts = entry.Key.Split(',');
-                        return new Vector2(long.Parse(parts[0]), long.Parse(parts[1]));
-                    },
-                    entry => entry.Value
-                );
+            var serializableDictionary = JsonSerializer.Deserialize<Dictionary<SerializableVector2, int>>(json);
+
+            chalkImage.Clear();
+            foreach (var pair in serializableDictionary)
+            {
+                chalkImage[pair.Key.ToVector2()] = pair.Value;
             }
         }
     }

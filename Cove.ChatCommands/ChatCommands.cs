@@ -285,12 +285,12 @@ public class ChatCommands : CovePlugin
                     {
                         canvas.loadCanvas();
                         Dictionary<string, object> chalkPacket = new Dictionary<string, object>();
-                    foreach (KeyValuePair<int, object> entry in canvas.getChalkPacket())
-                    {
-                        chalkPacket[entry.Key.ToString()] = entry.Value;
+                        foreach (KeyValuePair<int, object> entry in canvas.getChalkPacket())
+                        {
+                            chalkPacket[entry.Key.ToString()] = entry.Value;
+                        }
+                        SendPacketToAll(chalkPacket);
                     }
-                    SendPacketToAll(chalkPacket);
-                }
                     break;
                 }
             }

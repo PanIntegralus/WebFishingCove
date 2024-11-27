@@ -58,7 +58,7 @@ namespace Cove.Server.Chalk
 
             foreach(var pair in chalkImage)
             {
-                string line = $"{pair.Key.x},{pair.Key.y},{pair.Value}";
+                string line = $"{pair.Key.x}-{pair.Key.y}-{pair.Value}";
                 lines.Add(line);
             }
 
@@ -73,7 +73,7 @@ namespace Cove.Server.Chalk
 
             foreach (var line in lines)
             {
-                var parts = line.Split(',');
+                var parts = line.Split('-');
 
                 if (parts.Length == 3)
                 {

@@ -325,7 +325,6 @@ namespace Cove.Server
             });
 
             SteamMatchmaking.CreateLobby(ELobbyType.k_ELobbyTypePublic, MaxPlayers);
-
         }
         private bool getBoolFromString(string str)
         {

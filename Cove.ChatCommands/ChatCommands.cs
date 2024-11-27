@@ -2,6 +2,7 @@
 using Cove.GodotFormat;
 using Cove.Server;
 using Cove.Server.Actor;
+using Cove.Server.Chalk;
 using Cove.Server.Plugins;
 using Steamworks;
 
@@ -243,6 +244,16 @@ public class ChatCommands : CovePlugin
                             packet["pos"] = player.pos;
                             packet["rot"] = player.rot;
                             Server.sendPacketToPlayers(packet);;
+                        }
+                    }
+                    break;
+                case "!canvaslist":
+                    {
+                        if (!IsPlayerAdmin(sender)) return;
+                        SendPlayerChatMessage(sender, "Canvas list:");
+                        foreach (ChalkCanvas canvas in Server.chalkCanvas)
+                        {
+                            SendPlayerChatMessage(sender, canvas.ToString());
                         }
                     }
                     break;

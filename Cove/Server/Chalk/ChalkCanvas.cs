@@ -1,11 +1,12 @@
 ﻿using Cove.GodotFormat;
 using System;
+using System.IO;
+using System.Text.Json;
 
 namespace Cove.Server.Chalk
 {
     public class ChalkCanvas
     {
-
         public long canvasID;
         Dictionary<Vector2, int> chalkImage = new Dictionary<Vector2, int>();
 
@@ -52,6 +53,21 @@ namespace Cove.Server.Chalk
         public void clearCanvas()
         {
             chalkImage.Clear();
+        }
+
+        public void saveCanvas()
+        {
+            string json = JsonSerializer.Serialize(chalkImage);
+            File.WriteAllText($"chalk_{canvasID}.json", json);
+        }
+
+        public void loadCanvas()
+        {
+            string json = File.ReadAllText($"chalk_{canvasID}.json");
+            if (json != null)
+            {
+                chalkImage = JsonSerializer.Deserialize<Dictionary<Vector2, int>>(json);
+            }
         }
     }
 }

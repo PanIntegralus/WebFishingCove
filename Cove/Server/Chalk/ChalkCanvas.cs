@@ -1,7 +1,6 @@
 ﻿using Cove.GodotFormat;
 using System;
 using System.IO;
-using System.Text.Json;
 
 namespace Cove.Server.Chalk
 {
@@ -73,30 +72,37 @@ namespace Cove.Server.Chalk
 
         public void saveCanvas()
         {
-            var serializableDictionary = new Dictionary<SerializableVector2, int>();
-            foreach (var pair in chalkImage)
+            List<string> lines = new List<string>();
+
+            foreach(var pair in chalkImage)
             {
-                serializableDictionary[new SerializableVector2(pair.Key)] = pair.Value;
+                string line = $"{pair.Key.x},{pair.Key.y},{pair.Value}";
+                lines.Add(line);
             }
 
-            string json = JsonSerializer.Serialize(serializableDictionary, new JsonSerializerOptions
-            {
-                WriteIndented = true
-            });
-
-            File.WriteAllText($"canvas_{canvasID}.json", json);
+            File.WriteAllLines($"chalk_{canvasID}.txt", lines);
         }
 
         public void loadCanvas()
         {
-            string json = File.ReadAllText($"canvas_{canvasID}.json");
-
-            var serializableDictionary = JsonSerializer.Deserialize<Dictionary<SerializableVector2, int>>(json);
+            var lines = File.ReadAllLines($"chalk_{canvasID}.txt");
 
             chalkImage.Clear();
-            foreach (var pair in serializableDictionary)
+
+            foreach (var line in lines)
             {
-                chalkImage[pair.Key.ToVector2()] = pair.Value;
+                var parts = line.Split(',');
+
+                if (parts.Length == 3)
+                {
+                    if (float.TryParse(parts[0], out float x) &&
+                    float.TryParse(parts[1], out float y) &&
+                    int.TryParse(parts[2], out int color))
+                    {
+                        var vector = new Vector2(x, y);
+                        chalkImage[vector] = color;
+                    }
+                }
             }
         }
     }

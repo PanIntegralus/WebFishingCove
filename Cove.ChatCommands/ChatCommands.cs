@@ -298,7 +298,7 @@ public class ChatCommands : CovePlugin
                         {
                             Dictionary<int, object> arr = (Dictionary<int, object>)entry.Value;
                             Cove.GodotFormat.Vector2 vector2 = (Cove.GodotFormat.Vector2)arr[0];
-                            Int64 color = (Int64)arr[1];
+                            Int64 color = -1;
 
                             canvas.drawChalk(vector2, (int)color);
                         }

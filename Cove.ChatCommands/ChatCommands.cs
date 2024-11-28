@@ -290,20 +290,22 @@ public class ChatCommands : CovePlugin
                 case "!loadcanvas":
                 {
                     if (!IsPlayerAdmin(sender)) return;
-                    SendPlayerChatMessage(sender, "Loading all canvas...");
                     foreach (ChalkCanvas canvas in Server.chalkCanvas)
                     {
-                        canvas.loadCanvas();
                         Dictionary<int, object> allChalk = canvas.getChalkPacket();
 
+                        SendPlayerChatMessage(sender, "Clearing all chalk...");
                         foreach (var pair in allChalk)
                         {
+                            if ((int)pair.Value == -1) continue;
                             Dictionary<string, object> chalkPacket = new Dictionary<string, object> { { "type", "chalk_packet" }, { "canvas_id", canvas.canvasID }, { "data", new Dictionary<int, object> { { pair.Key, -1 } } } };
                             SendPacketToAll(chalkPacket);
                             Thread.Sleep(5);
                         }
-                        
 
+                        SendPlayerChatMessage(sender, "Loading canvas...");
+                        canvas.loadCanvas();
+                        
                         // split the dictionary into chunks of 100
                         List<Dictionary<int, object>> chunks = new List<Dictionary<int, object>>();
                         Dictionary<int, object> chunk = new Dictionary<int, object>();
@@ -327,6 +329,8 @@ public class ChatCommands : CovePlugin
                             SendPacketToAll(chalkPacket);
                             Thread.Sleep(10);
                         }
+
+                        SendPlayerChatMessage(sender, "Canvas finished loading!");
                     }
                     break;
                 }

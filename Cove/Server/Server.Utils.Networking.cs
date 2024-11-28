@@ -22,7 +22,7 @@ namespace Cove.Server
         {
             byte[] packetBytes = writePacket(packet);
             
-            foreach (CSteamID player in getAllPlayers().ToList())
+            foreach (CSteamID player in getAllPlayers())
             {
                 if (player == SteamUser.GetSteamID())
                     continue;
@@ -42,9 +42,9 @@ namespace Cove.Server
             int playerCount = AllPlayers.Count;
             CSteamID[] players = new CSteamID[playerCount];
 
-            foreach (WFPlayer player in AllPlayers.ToList())
+            for (int i = 0; i < playerCount; i++)
             {
-                players.Append(player.SteamId);
+                players[i] = AllPlayers[i].SteamId;
             }
 
             return players;

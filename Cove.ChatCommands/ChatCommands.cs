@@ -311,7 +311,7 @@ public class ChatCommands : CovePlugin
                                 chunk = new Dictionary<int, object>();
                                 i = 0;
                             }
-                            chunk.Add(i, kvp.Value);
+                            chunk.Add(i, -1);
                             i++;
                         }
 

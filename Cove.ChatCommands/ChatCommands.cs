@@ -292,19 +292,10 @@ public class ChatCommands : CovePlugin
                     if (!IsPlayerAdmin(sender)) return;
                     foreach (ChalkCanvas canvas in Server.chalkCanvas)
                     {
-                        Dictionary<int, object> allChalk = canvas.getChalkPacket();
-
-                        SendPlayerChatMessage(sender, "Clearing all chalk...");
-                        foreach (var pair in allChalk)
-                        {
-                            if ((int)pair.Value == -1) continue;
-                            Dictionary<string, object> chalkPacket = new Dictionary<string, object> { { "type", "chalk_packet" }, { "canvas_id", canvas.canvasID }, { "data", new Dictionary<int, object> { { pair.Key, -1 } } } };
-                            SendPacketToAll(chalkPacket);
-                            Thread.Sleep(5);
-                        }
-
                         SendPlayerChatMessage(sender, "Loading canvas...");
                         canvas.loadCanvas();
+                        Dictionary<int, object> allChalk = canvas.getChalkPacket();
+                        canvas.chalkUpdate(allChalk);
                         
                         // split the dictionary into chunks of 100
                         List<Dictionary<int, object>> chunks = new List<Dictionary<int, object>>();

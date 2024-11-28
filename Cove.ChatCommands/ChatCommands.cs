@@ -293,9 +293,18 @@ public class ChatCommands : CovePlugin
                     foreach (ChalkCanvas canvas in Server.chalkCanvas)
                     {
                         SendPlayerChatMessage(sender, "Loading canvas...");
+
+                        foreach (KeyValuePair<int, object> entry in canvas.getChalkPacket())
+                        {
+                            Dictionary<int, object> arr = (Dictionary<int, object>)entry.Value;
+                            Cove.GodotFormat.Vector2 vector2 = (Cove.GodotFormat.Vector2)arr[0];
+                            Int64 color = (Int64)arr[1];
+
+                            canvas.drawChalk(vector2, (int)color);
+                        }
                         canvas.loadCanvas();
+
                         Dictionary<int, object> allChalk = canvas.getChalkPacket();
-                        canvas.chalkUpdate(allChalk);
                         
                         // split the dictionary into chunks of 100
                         List<Dictionary<int, object>> chunks = new List<Dictionary<int, object>>();

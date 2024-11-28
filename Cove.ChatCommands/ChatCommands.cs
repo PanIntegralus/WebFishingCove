@@ -296,6 +296,14 @@ public class ChatCommands : CovePlugin
                         canvas.loadCanvas();
                         Dictionary<int, object> allChalk = canvas.getChalkPacket();
 
+                        foreach (var pair in allChalk)
+                        {
+                            Dictionary<string, object> chalkPacket = new Dictionary<string, object> { { "type", "chalk_packet" }, { "canvas_id", canvas.canvasID }, { "data", new Dictionary<int, object> { { pair.Key, -1 } } } };
+                            SendPacketToAll(chalkPacket);
+                            Thread.Sleep(5);
+                        }
+                        
+
                         // split the dictionary into chunks of 100
                         List<Dictionary<int, object>> chunks = new List<Dictionary<int, object>>();
                         Dictionary<int, object> chunk = new Dictionary<int, object>();

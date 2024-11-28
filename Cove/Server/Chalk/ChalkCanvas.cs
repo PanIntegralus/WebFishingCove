@@ -54,6 +54,10 @@ namespace Cove.Server.Chalk
 
         public void clearCanvas()
         {
+            foreach (KeyValuePair<Vector2, int> entry in chalkImage)
+            {
+                chalkImage[entry.Key] = 0;
+            }
             chalkImage.Clear();
         }
 
@@ -74,7 +78,7 @@ namespace Cove.Server.Chalk
         {
             var lines = File.ReadAllLines($"chalk_{canvasID}.txt");
 
-            chalkImage.Clear();
+            clearCanvas();
 
             foreach (var line in lines)
             {

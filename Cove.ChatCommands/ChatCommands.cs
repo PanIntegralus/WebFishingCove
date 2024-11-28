@@ -292,9 +292,11 @@ public class ChatCommands : CovePlugin
                     if (!IsPlayerAdmin(sender)) return;
                     foreach (ChalkCanvas canvas in Server.chalkCanvas)
                     {
-                        SendPlayerChatMessage(sender, "Loading canvas...");
+                        SendPlayerChatMessage(sender, $"Loading canvas {canvas.canvasID}...");
 
-                        foreach (KeyValuePair<Cove.GodotFormat.Vector2, int> entry in canvas.chalkImage.ToDictionary(pair => pair.Key, pair => pair.Value))
+                        SendPlayerChatMessage(sender, $"Canvas has {canvas.getChalkImage().Count} chalks");
+
+                        foreach (KeyValuePair<Cove.GodotFormat.Vector2, int> entry in canvas.getChalkImage().ToDictionary(pair => pair.Key, pair => pair.Value))
                         {
                             canvas.drawChalk(entry.Key, -1);
                         }

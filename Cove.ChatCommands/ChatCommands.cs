@@ -305,6 +305,9 @@ public class ChatCommands : CovePlugin
                             Cove.GodotFormat.Vector2 vector2 = (Cove.GodotFormat.Vector2)arr[0];
                             canvas.drawChalk(vector2, -1);
                         }
+
+                        canvas.loadCanvas();
+                        allChalk = canvas.getChalkPacket();
                         
                         // split the dictionary into chunks of 100
                         List<Dictionary<int, object>> chunks = new List<Dictionary<int, object>>();

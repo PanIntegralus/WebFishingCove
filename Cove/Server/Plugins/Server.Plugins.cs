@@ -21,7 +21,7 @@ namespace Cove.Server
             Console.WriteLine("IF YOU ARE RUNNING UNTRUSTED PLUGINS EXIT COVE NOW");
             Console.WriteLine("------------ WARNING ------------\n");
 
-            Thread.Sleep(5000);
+            // Thread.Sleep(5000);
 
             Console.WriteLine("Loading Plugins...");
 

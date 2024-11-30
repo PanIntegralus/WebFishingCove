@@ -66,7 +66,7 @@ namespace Cove.Server.Chalk
             HashSet<string> lines = new HashSet<string>();
             foreach(var pair in chalkImage)
             {
-                string line = $"{pair.Key.x}:{pair.Key.y}:{pair.Value}";
+                string line = $"{(int)pair.Key.x}:{(int)pair.Key.y}:{pair.Value}";
                 lines.Add(line);
             }
             File.WriteAllLines($"chalk_{canvasID}.txt", lines);

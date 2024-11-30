@@ -24,5 +24,18 @@ namespace Cove.Server.Actor
             pos = new Vector3(0, 0, 0);
             despawn = false; // players down despawn!
         }
+
+                    // Proximity detection using Godot's DistanceTo method
+        public bool IsNear(WFActor other, float proximityDistance)
+        {
+            return pos.DistanceTo(other.pos) <= proximityDistance;
+        }
+
+        // Touch detection with optional threshold for floating-point precision
+        public bool IsTouching(WFActor other, float touchDistance = 0.1f)
+        {
+            return pos.DistanceTo(other.pos) <= touchDistance;
+        }
+        
     };
 }

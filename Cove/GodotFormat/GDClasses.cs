@@ -55,6 +55,14 @@
             );
         }
 
+    public float DistanceTo(Vector3 other)
+        {
+            float dx = other.x - x;
+            float dy = other.y - y;
+            float dz = other.z - z;
+            return (float)Math.Sqrt(dx * dx + dy * dy + dz * dz);
+        }
+
         public float Magnitude()
         {
             return (float)Math.Sqrt(x * x + y * y + z * z);

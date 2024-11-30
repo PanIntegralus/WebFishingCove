@@ -40,6 +40,11 @@ namespace Cove.Server
             return false;
         }
 
+        public bool isPlayerCanvasBanned(CSteamID id)
+        {
+            return CanvasBans.Contains(id.m_SteamID.ToString());
+        }
+
         private void writeToBansFile(CSteamID id)
         {
             string fileDir = $"{AppDomain.CurrentDomain.BaseDirectory}bans.txt";
@@ -55,5 +60,19 @@ namespace Cove.Server
             sendPacketToPlayer(kickPacket, id);
         }
 
+        public void canvasBanPlayer(CSteamID id)
+        {
+            // add id to canvas_bans file
+            string fileDir = $"{AppDomain.CurrentDomain.BaseDirectory}canvas_bans.txt";
+            File.AppendAllLines(fileDir, [$"{id.m_SteamID}"]);
+        }
+
+        public void canvasUnbanPlayer(CSteamID id)
+        {
+            // remove id from canvas_bans file
+            string fileDir = $"{AppDomain.CurrentDomain.BaseDirectory}canvas_bans.txt";
+            string[] fileContent = File.ReadAllLines(fileDir);
+            File.WriteAllLines(fileDir, fileContent.Where(line => !line.Contains(id.m_SteamID.ToString())));
+        }
     }
 }

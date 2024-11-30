@@ -152,6 +152,11 @@ namespace Cove.Server
                             chalkCanvas.Add(canvas);
                         }
 
+                        if (isPlayerCanvasBanned(sender))
+                        {
+                            return;
+                        }
+                        
                         canvas.chalkUpdate((Dictionary<int, object>)packetInfo["data"]);
 
                     }

@@ -31,6 +31,7 @@ namespace Cove.Server
         public bool friendsOnly = false;
 
         List<string> Admins = new();
+        List<string> CanvasBans = new();
         public CSteamID SteamLobby;
 
         public List<WFPlayer> AllPlayers = new();
@@ -164,6 +165,8 @@ namespace Cove.Server
 
             Console.WriteLine("Reading admins.cfg");
             readAdmins();
+            Console.WriteLine("Reading canvas_bans.txt");
+            readCanvasBans();
             Console.WriteLine("Setup finished, starting server!");
 
             if (Directory.Exists($"{AppDomain.CurrentDomain.BaseDirectory}plugins"))

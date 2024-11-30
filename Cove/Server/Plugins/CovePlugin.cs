@@ -82,6 +82,16 @@ namespace Cove.Server.Plugins
             }
         }
 
+        public void CanvasBanPlayer(WFPlayer player)
+        {
+            parentServer.canvasBanPlayer(player.SteamId);
+        }
+
+        public void CanvasUnbanPlayer(WFPlayer player)
+        {
+            parentServer.canvasUnbanPlayer(player.SteamId);
+        }
+
         public void Log(string message)
         {
             parentServer.printPluginLog(message, this);
@@ -90,6 +100,11 @@ namespace Cove.Server.Plugins
         public bool IsPlayerAdmin(WFPlayer player)
         {
             return parentServer.isPlayerAdmin(player.SteamId);
+        }
+
+        public bool IsPlayerCanvasBanned(WFPlayer player)
+        {
+            return parentServer.isPlayerCanvasBanned(player.SteamId);
         }
 
         public void SendPacketToPlayer(Dictionary<string, object> packet, WFPlayer player)

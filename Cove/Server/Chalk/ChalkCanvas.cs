@@ -70,7 +70,8 @@ namespace Cove.Server.Chalk
                 string line = $"{pair.Key.x}:{pair.Key.y}:{pair.Value}";
                 lines.Add(line);
             }
-            File.WriteAllText($"chalk_{canvasID}.txt", string.Empty);
+            // clear file before writing
+            File.Delete($"chalk_{canvasID}.txt");
             File.WriteAllLines($"chalk_{canvasID}.txt", lines);
         }
 

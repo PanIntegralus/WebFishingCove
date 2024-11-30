@@ -284,6 +284,7 @@ public class ChatCommands : CovePlugin
                     {
                         canvas.saveCanvas();
                     }
+                    SendPlayerChatMessage(sender, "Saved all canvas!");
                     break;
                 }
 
@@ -297,41 +298,19 @@ public class ChatCommands : CovePlugin
                         SendPlayerChatMessage(sender, $"Canvas has {canvas.getChalkImage().Count} chalks");
 
                         Dictionary<int, object> allChalk = canvas.getChalkPacket();
+
+                        foreach (KeyValuePair<int, object> entry in allChalk)
+                        {
+                            Dictionary<int, object> arr = (Dictionary<int, object>)entry.Value;
+                            Cove.GodotFormat.Vector2 vector2 = (Cove.GodotFormat.Vector2)arr[0];
+                            canvas.drawChalk(vector2, -1);
+                        }
                         
                         // split the dictionary into chunks of 100
                         List<Dictionary<int, object>> chunks = new List<Dictionary<int, object>>();
                         Dictionary<int, object> chunk = new Dictionary<int, object>();
 
                         int i = 0;
-                        foreach (var kvp in allChalk)
-                        {
-                            if (i >= 1000)
-                            {
-                                chunks.Add(chunk);
-                                chunk = new Dictionary<int, object>();
-                                i = 0;
-                            }
-                            Int64 color = -1;
-                            chunk.Add(i, color);
-                            i++;
-                        }
-
-                        for (int index = 0; index < chunks.Count; index++)
-                        {
-                            Dictionary<string, object> chalkPacket = new Dictionary<string, object> { { "type", "chalk_packet" }, { "canvas_id", canvas.canvasID }, { "data", chunks[index] } };
-                            SendPacketToAll(chalkPacket);
-                            Thread.Sleep(10);
-                        }
-
-                        canvas.loadCanvas();
-
-                        allChalk = canvas.getChalkPacket();
-                        
-                        // split the dictionary into chunks of 100
-                        chunks = new List<Dictionary<int, object>>();
-                        chunk = new Dictionary<int, object>();
-
-                        i = 0;
                         foreach (var kvp in allChalk)
                         {
                             if (i >= 1000)
@@ -352,43 +331,50 @@ public class ChatCommands : CovePlugin
                             Thread.Sleep(10);
                         }
 
-                        SendPlayerChatMessage(sender, "Canvas finished loading!");
+                        SendPlayerChatMessage(sender, "Canvas finished loading! Rejoin to see changes.");
                     }
                     break;
                 }
+
                 case "!resetcanvas":
                 {
                     if (!IsPlayerAdmin(sender)) return;
                     foreach (ChalkCanvas canvas in Server.chalkCanvas)
                     {
-                        Dictionary<int, object> allChalk = canvas.getChalkPacket();
-                        
-                        // split the dictionary into chunks of 100
-                        List<Dictionary<int, object>> chunks = new List<Dictionary<int, object>>();
-                        Dictionary<int, object> chunk = new Dictionary<int, object>();
-
-                        int i = 0;
-                        foreach (var kvp in allChalk)
-                        {
-                            if (i >= 1000)
-                            {
-                                chunks.Add(chunk);
-                                chunk = new Dictionary<int, object>();
-                                i = 0;
-                            }
-                            chunk.Add(i, -1);
-                            i++;
-                        }
-
-                        for (int index = 0; index < chunks.Count; index++)
-                        {
-                            Dictionary<string, object> chalkPacket = new Dictionary<string, object> { { "type", "chalk_packet" }, { "canvas_id", canvas.canvasID }, { "data", chunks[index] } };
-                            SendPacketToAll(chalkPacket);
-                            Thread.Sleep(10);
-                        }
+                        canvas.clearCanvas();
                     }
+                    SendPlayerChatMessage(sender, "Canvas cleared! Rejoin to see updates.");
                     break;
                 }
+
+                case "!blockcanvas":
+                {
+                    if (!IsPlayerAdmin(sender)) return;
+                    // if player is unblocked, block them from painting
+                    string playerIdent = message.Substring(command.Length + 1);
+                    // try find a user with the username first
+                    WFPlayer playerToBan = GetAllPlayers().ToList().Find(p => p.Username.Equals(playerIdent, StringComparison.OrdinalIgnoreCase));
+                    // if there is no player with the username try find someone with that fisher ID
+                    if (playerToBan == null)
+                        playerToBan = GetAllPlayers().ToList().Find(p => p.FisherID.Equals(playerIdent, StringComparison.OrdinalIgnoreCase));
+
+                    if (playerToBan == null)
+                    {
+                        SendPlayerChatMessage(sender, "Player not found!");
+                    } else {
+                        if (IsPlayerCanvasBanned(sender))
+                        {
+                            CanvasBanPlayer(playerToBan);
+                            SendPlayerChatMessage(sender, $"Unblocked \"{sender.Username}\" from painting!");
+                        } else
+                        {
+                            CanvasUnbanPlayer(playerToBan);
+                            SendPlayerChatMessage(sender, $"Blocked \"{sender.Username}\" from painting!");
+                        }
+                    }
+                }
+                break;
+
             }
         }
     }

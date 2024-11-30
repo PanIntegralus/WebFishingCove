@@ -29,6 +29,17 @@ namespace Cove.Server
             }
         }
 
+        public void readCanvasBans()
+        {
+            // read file and add every line to the ban list
+            string banFile = "canvas_bans.txt";
+            string[] fileContent = File.ReadAllLines(banFile);
+            foreach (string line in fileContent)
+            {
+                CanvasBans.Add(line);
+            }
+        }
+
         public void spawnRainCloud()
         {
             Random rand = new Random();

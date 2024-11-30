@@ -328,7 +328,6 @@ public class ChatCommands : CovePlugin
 
                         for (int index = 0; index < chunks.Count; index++)
                         {
-                            Console.WriteLine($"Sending chunk {index}: {chunks[index]}");
                             Dictionary<string, object> chalkPacket = new Dictionary<string, object> { { "type", "chalk_packet" }, { "canvas_id", canvas.canvasID }, { "data", chunks[index] } };
                             SendPacketToAll(chalkPacket);
                             Thread.Sleep(10);

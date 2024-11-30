@@ -63,8 +63,7 @@ namespace Cove.Server.Chalk
 
         public void saveCanvas()
         {
-            List<string> lines = new List<string>();
-
+            HashSet<string> lines = new HashSet<string>();
             foreach(var pair in chalkImage)
             {
                 string line = $"{pair.Key.x}:{pair.Key.y}:{pair.Value}";

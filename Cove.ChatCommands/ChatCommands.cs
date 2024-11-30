@@ -353,13 +353,15 @@ public class ChatCommands : CovePlugin
                 case "!blockcanvas":
                 {
                     if (!IsPlayerAdmin(sender)) return;
-                    // if player is unblocked, block them from painting
                     string playerIdent = message.Substring(command.Length + 1);
                     // try find a user with the username first
                     WFPlayer playerToBan = GetAllPlayers().ToList().Find(p => p.Username.Equals(playerIdent, StringComparison.OrdinalIgnoreCase));
                     // if there is no player with the username try find someone with that fisher ID
                     if (playerToBan == null)
                         playerToBan = GetAllPlayers().ToList().Find(p => p.FisherID.Equals(playerIdent, StringComparison.OrdinalIgnoreCase));
+                    // if there is no player with the fisher ID try find someone with that steam ID
+                    if (playerToBan == null)
+                        playerToBan = GetAllPlayers().ToList().Find(p => p.SteamId.m_SteamID == ulong.Parse(playerIdent));
 
                     if (playerToBan == null)
                     {

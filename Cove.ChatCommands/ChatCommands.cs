@@ -305,6 +305,7 @@ public class ChatCommands : CovePlugin
                     if (!IsPlayerAdmin(sender)) return;
                     foreach (ChalkCanvas canvas in Server.chalkCanvas)
                     {
+                        Server.messageGlobal("Cargando dibujos, por favor, espera...");
                         SendPlayerChatMessage(sender, $"Loading canvas {canvas.canvasID}...");
 
                         SendPlayerChatMessage(sender, $"Canvas has {canvas.getChalkImage().Count} chalks");
@@ -320,8 +321,6 @@ public class ChatCommands : CovePlugin
                         // split the dictionary into chunks of 100
                         chalkPacket = new Dictionary<string, object> { { "type", "chalk_packet" }, { "canvas_id", canvas.canvasID }, { "data", allChalk } };
                         SendPacketToAll(chalkPacket);
-
-                        SendPlayerChatMessage(sender, "Canvas finished loading! Rejoin to see all changes.");
                     }
                     break;
                 }
@@ -339,7 +338,7 @@ public class ChatCommands : CovePlugin
                 }
 
                 case "!blockdraw":
-                case "!bc":
+                case "!bd":
                 {
                     if (!IsPlayerAdmin(sender)) return;
                     string playerIdent = message.Substring(command.Length + 1);
@@ -356,7 +355,7 @@ public class ChatCommands : CovePlugin
                     {
                         SendPlayerChatMessage(sender, "Player not found!");
                     } else {
-                        if (IsPlayerCanvasBanned(sender))
+                        if (IsPlayerCanvasBanned(playerToBan))
                         {
                             CanvasBanPlayer(playerToBan);
                             SendPlayerChatMessage(sender, $"Unblocked \"{sender.Username}\" from painting!");

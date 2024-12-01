@@ -1,12 +1,29 @@
-﻿using Steamworks;
+﻿/*
+   Copyright 2024 DrMeepso
+
+   Licensed under the Apache License, Version 2.0 (the "License");
+   you may not use this file except in compliance with the License.
+   You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+   Unless required by applicable law or agreed to in writing, software
+   distributed under the License is distributed on an "AS IS" BASIS,
+   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   See the License for the specific language governing permissions and
+   limitations under the License.
+*/
+
+using Steamworks;
 using Cove.Server.Plugins;
-using Cove.GodotFormat;
 using Cove.Server.Actor;
 using Cove.Server.Utils;
 using Cove.Server.Chalk;
 using Microsoft.Extensions.Hosting;
 using Cove.Server.HostedServices;
 using Microsoft.Extensions.Logging;
+using Vector3 = Cove.GodotFormat.Vector3;
+using System.Reflection;
 
 namespace Cove.Server
 {
@@ -18,7 +35,7 @@ namespace Cove.Server
         public string LobbyCode = new string(Enumerable.Range(0, 5).Select(_ => "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"[new Random().Next(36)]).ToArray());
         public bool codeOnly = true;
         public bool ageRestricted = false;
-        
+
         public string joinMessage = "This is a Cove dedicated server!\nPlease report any issues to the github (xr0.xyz/cove)";
         public bool displayJoinMessage = true;
 
@@ -41,6 +58,7 @@ namespace Cove.Server
 
         public List<WFPlayer> AllPlayers = new();
         public List<WFActor> serverOwnedInstances = new();
+        public List<WFActor> allActors = new();
 
         Thread cbThread;
         Thread networkThread;
@@ -51,18 +69,20 @@ namespace Cove.Server
         List<Vector3> hidden_spot;
 
         Dictionary<string, IHostedService> services = new();
+        public readonly object serverActorListLock = new();
 
         public void Init()
         {
-
             cbThread = new(runSteamworksUpdate);
+            cbThread.Name = "Steamworks Callback Thread";
+
             networkThread = new(RunNetwork);
+            networkThread.Name = "Network Thread";
 
             Console.WriteLine("Loading world!");
             string worldFile = $"{AppDomain.CurrentDomain.BaseDirectory}worlds/main_zone.tscn";
             if (!File.Exists(worldFile))
             {
-
                 Console.WriteLine("-- ERROR --");
                 Console.WriteLine("main_zone.tscn is missing!");
                 Console.WriteLine("please put a world file in the /worlds folder so the server may load it!");
@@ -186,7 +206,7 @@ namespace Cove.Server
 
             if (!SteamAPI.Init())
             {
-                Console.WriteLine("SteamAPI_Init() failed. Refer to Valve's documentation or the comment above this line for more information.");
+                Console.WriteLine("SteamAPI_Init() failed.");
                 Console.WriteLine("Is Steam running?");
                 return;
             }
@@ -200,7 +220,7 @@ namespace Cove.Server
             // like 10 minutes of delay within 30 seconds
             networkThread.IsBackground = true;
             networkThread.Start();
-            
+
             bool LogServices = false;
             ILoggerFactory loggerFactory = LoggerFactory.Create(builder =>
             {
@@ -265,8 +285,11 @@ namespace Cove.Server
                 {
                     string Username = SteamFriends.GetFriendPersonaName(userChanged);
 
-                    Console.WriteLine($"{Username} [{userChanged.m_SteamID}] has joined the game!");
-                    updatePlayercount();
+                    if (!isPlayerBanned(userChanged))
+                    {
+                        Console.WriteLine($"{Username} [{userChanged.m_SteamID}] has joined the game!");
+                        updatePlayercount();
+                    }
 
                     if (AllPlayers.Find(p => p.SteamId.m_SteamID == userChanged.m_SteamID) != null)
                     {
@@ -278,11 +301,9 @@ namespace Cove.Server
                     WFPlayer newPlayer = new WFPlayer(userChanged, Username);
                     AllPlayers.Add(newPlayer);
 
-                    //Console.WriteLine($"{Username} has been assigned the fisherID: {newPlayer.FisherID}");
-
-                    foreach (PluginInstance plugin in loadedPlugins)
+                    foreach (PluginInstance p in loadedPlugins)
                     {
-                        plugin.plugin.onPlayerJoin(newPlayer);
+                        p.plugin.onPlayerJoin(newPlayer);
                     }
 
                     // check if the player is banned
@@ -296,30 +317,25 @@ namespace Cove.Server
                         Console.WriteLine("This will cause issues, please run the server on a different account!");
                         Console.ResetColor();
                     }
-
                 }
 
                 if (stateChange.HasFlag(EChatMemberStateChange.k_EChatMemberStateChangeLeft) || stateChange.HasFlag(EChatMemberStateChange.k_EChatMemberStateChangeDisconnected))
                 {
-
                     string Username = SteamFriends.GetFriendPersonaName(userChanged);
 
-                    Console.WriteLine($"{Username} [{userChanged.m_SteamID}] has left the game!");
-                    updatePlayercount();
-
-                    foreach (var player in AllPlayers)
+                    if (!isPlayerBanned(userChanged))
                     {
-                        if (player.SteamId.m_SteamID == userChanged.m_SteamID)
-                        {
-
-                            foreach (PluginInstance plugin in loadedPlugins)
-                            {
-                                plugin.plugin.onPlayerLeave(player);
-                            }
-
-                            AllPlayers.Remove(player);
-                        }
+                        Console.WriteLine($"{Username} [{userChanged.m_SteamID}] has left the game!");
+                        updatePlayercount();
                     }
+
+                    WFPlayer leavingPlayer = AllPlayers.Find(p => p.SteamId.m_SteamID == userChanged.m_SteamID);
+                    foreach (PluginInstance plugin in loadedPlugins)
+                    {
+                        plugin.plugin.onPlayerLeave(leavingPlayer);
+                    }
+                    AllPlayers.Remove(leavingPlayer);
+                    allActors.RemoveAll(a => a.owner.m_SteamID == userChanged.m_SteamID);
                 }
             });
 
@@ -354,23 +370,18 @@ namespace Cove.Server
         private bool getBoolFromString(string str)
         {
             if (str.ToLower() == "true")
-            {
                 return true;
-            }
             else if (str.ToLower() == "false")
-            {
                 return false;
-            }
             else
-            {
                 return false;
-            }
         }
 
         void runSteamworksUpdate()
         {
             while (true)
             {
+                Thread.Sleep(1000/24); // 24hz
                 SteamAPI.RunCallbacks();
             }
         }
@@ -379,15 +390,16 @@ namespace Cove.Server
         {
             while (true)
             {
+                bool didWork = false;
                 try
                 {
-                    // OnNetworkPacket(packet.Value);
                     for (int i = 0; i < 6; i++)
                     {
                         uint packetSize = 0;
                         // we are going to check if there are any incoming net packets!
                         if (SteamNetworking.IsP2PPacketAvailable(out packetSize, nChannel: i))
                         {
+                            didWork = true;
                             byte[] packet = new byte[packetSize];
                             uint bytesRead = 0;
                             CSteamID sender;
@@ -403,10 +415,13 @@ namespace Cove.Server
                 {
                     if (!showErrorMessages)
                         return;
-                    
+
                     Console.WriteLine("-- Error responding to packet! --");
                     Console.WriteLine(e.ToString());
                 }
+
+                if (!didWork)
+                    Thread.Sleep(10);
             }
         }
 
@@ -414,6 +429,13 @@ namespace Cove.Server
         {
 
             WFPlayer sender = AllPlayers.Find(p => p.SteamId == id);
+            if (sender == null)
+            {
+                Console.WriteLine($"[UNKNOWN] {id}: {message}");
+                // should probbaly kick the player here
+                return;
+            }
+
             Console.WriteLine($"[{sender.FisherID}] {sender.Username}: {message}");
 
             foreach (PluginInstance plugin in loadedPlugins)

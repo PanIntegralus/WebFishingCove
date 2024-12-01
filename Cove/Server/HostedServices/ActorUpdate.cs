@@ -1,4 +1,21 @@
-﻿using System;
+﻿/*
+   Copyright 2024 DrMeepso
+
+   Licensed under the Apache License, Version 2.0 (the "License");
+   you may not use this file except in compliance with the License.
+   You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+   Unless required by applicable law or agreed to in writing, software
+   distributed under the License is distributed on an "AS IS" BASIS,
+   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   See the License for the specific language governing permissions and
+   limitations under the License.
+*/
+
+
+using System;
 using System.Threading;
 using System.Threading.Tasks;
 using Cove.GodotFormat;
@@ -52,31 +69,32 @@ namespace Cove.Server.HostedServices
 
             try
             {
-
-                foreach (WFActor actor in server.serverOwnedInstances.ToList())
+                lock (server.serverActorListLock)
                 {
-                    actor.onUpdate();
-
-                    if (!pastTransforms.ContainsKey(actor.InstanceID))
+                    foreach (WFActor actor in server.serverOwnedInstances.ToList())
                     {
-                        pastTransforms[actor.InstanceID] = Vector3.zero;
-                    }
+                        actor.onUpdate();
 
-                    if (actor.pos != pastTransforms[actor.InstanceID] || (updateI == idelUpdateCount))
-                    {
+                        if (!pastTransforms.ContainsKey(actor.InstanceID))
+                        {
+                            pastTransforms[actor.InstanceID] = Vector3.zero;
+                        }
 
-                        Dictionary<string, object> packet = new Dictionary<string, object>();
-                        packet["type"] = "actor_update";
-                        packet["actor_id"] = actor.InstanceID;
-                        packet["pos"] = actor.pos;
-                        packet["rot"] = actor.rot;
+                        if (actor.pos != pastTransforms[actor.InstanceID] || (updateI == idelUpdateCount))
+                        {
 
-                        pastTransforms[actor.InstanceID] = actor.pos; // crude
+                            Dictionary<string, object> packet = new Dictionary<string, object>();
+                            packet["type"] = "actor_update";
+                            packet["actor_id"] = actor.InstanceID;
+                            packet["pos"] = actor.pos;
+                            packet["rot"] = actor.rot;
 
-                        server.sendPacketToPlayers(packet);
+                            pastTransforms[actor.InstanceID] = actor.pos; // crude
+
+                            server.sendPacketToPlayers(packet);
+                        }
                     }
                 }
-
             }
             catch (InvalidOperationException e)
             {

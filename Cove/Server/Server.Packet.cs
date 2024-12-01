@@ -1,8 +1,23 @@
-﻿using Steamworks;
+﻿/*
+   Copyright 2024 DrMeepso
+
+   Licensed under the Apache License, Version 2.0 (the "License");
+   you may not use this file except in compliance with the License.
+   You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+   Unless required by applicable law or agreed to in writing, software
+   distributed under the License is distributed on an "AS IS" BASIS,
+   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   See the License for the specific language governing permissions and
+   limitations under the License.
+*/
+
+using Steamworks;
 using Cove.GodotFormat;
 using Cove.Server.Actor;
 using Cove.Server.Utils;
-using System.Reflection;
 
 namespace Cove.Server
 {
@@ -39,10 +54,9 @@ namespace Cove.Server
                         hostPacket["type"] = "recieve_host";
                         hostPacket["host_id"] = SteamUser.GetSteamID().m_SteamID.ToString();
                         sendPacketToPlayers(hostPacket);
+
                         if (isPlayerAdmin(sender))
-                        {
                             messagePlayer("You're an admin on this server!", sender);
-                        }
 
                         Thread ChalkInformer = new Thread(() => SendStagedChalkPackets(sender));
                         ChalkInformer.Start(); // send the player all the chalk data
@@ -73,13 +87,17 @@ namespace Cove.Server
                         {
                             WFPlayer thisPlayer = AllPlayers.Find(p => p.SteamId.m_SteamID == sender.m_SteamID);
                             if (thisPlayer == null)
-                            {
                                 Console.WriteLine("No fisher found for player instance!");
-                            }
                             else
                             {
                                 thisPlayer.InstanceID = actorID;
+                                allActors.Add(thisPlayer); // add the player to the actor list
                             }
+
+                        } else {
+                            WFActor cActor = new WFActor(actorID, type, Vector3.zero, Vector3.zero);
+                            cActor.owner = sender;
+                            allActors.Add(cActor);
                         }
 
                     }
@@ -163,34 +181,41 @@ namespace Cove.Server
 
         internal void SendStagedChalkPackets(CSteamID recipient)
         {
-            // send the player all the canvas data
-            foreach (Chalk.ChalkCanvas canvas in chalkCanvas)
+            try
             {
-                Dictionary<int, object> allChalk = canvas.getChalkPacket();
-
-                // split the dictionary into chunks of 100
-                List<Dictionary<int, object>> chunks = new List<Dictionary<int, object>>();
-                Dictionary<int, object> chunk = new Dictionary<int, object>();
-
-                int i = 0;
-                foreach (var kvp in allChalk)
+                // send the player all the canvas data
+                foreach (Chalk.ChalkCanvas canvas in chalkCanvas)
                 {
-                    if (i >= 1000)
+                    Dictionary<int, object> allChalk = canvas.getChalkPacket();
+
+                    // split the dictionary into chunks of 100
+                    List<Dictionary<int, object>> chunks = new List<Dictionary<int, object>>();
+                    Dictionary<int, object> chunk = new Dictionary<int, object>();
+
+                    int i = 0;
+                    foreach (var kvp in allChalk)
                     {
-                        chunks.Add(chunk);
-                        chunk = new Dictionary<int, object>();
-                        i = 0;
+                        if (i >= 1000)
+                        {
+                            chunks.Add(chunk);
+                            chunk = new Dictionary<int, object>();
+                            i = 0;
+                        }
+                        chunk.Add(i, kvp.Value);
+                        i++;
                     }
-                    chunk.Add(i, kvp.Value);
-                    i++;
-                }
 
-                for (int index = 0; index < chunks.Count; index++)
-                {
-                    Dictionary<string, object> chalkPacket = new Dictionary<string, object> { { "type", "chalk_packet" }, { "canvas_id", canvas.canvasID }, { "data", chunks[index] } };
-                    sendPacketToPlayer(chalkPacket, recipient);
-                    Thread.Sleep(10);
+                    for (int index = 0; index < chunks.Count; index++)
+                    {
+                        Dictionary<string, object> chalkPacket = new Dictionary<string, object> { { "type", "chalk_packet" }, { "canvas_id", canvas.canvasID }, { "data", chunks[index] } };
+                        sendPacketToPlayer(chalkPacket, recipient);
+                        Thread.Sleep(10);
+                    }
                 }
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
             }
         }
     }

@@ -1,4 +1,21 @@
-﻿using Steamworks;
+﻿/*
+   Copyright 2024 DrMeepso
+
+   Licensed under the Apache License, Version 2.0 (the "License");
+   you may not use this file except in compliance with the License.
+   You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+   Unless required by applicable law or agreed to in writing, software
+   distributed under the License is distributed on an "AS IS" BASIS,
+   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   See the License for the specific language governing permissions and
+   limitations under the License.
+*/
+
+
+using Steamworks;
 using Cove.Server.Plugins;
 using Cove.GodotFormat;
 using Cove.Server.Actor;
@@ -67,7 +84,11 @@ namespace Cove.Server
             sendPacketToPlayers(rainSpawnPacket); // spawn the rain!
             RainCloud cloud = new RainCloud(IId, pos);
             cloud.despawn = true;
-            serverOwnedInstances.Add(cloud);
+
+            lock (serverActorListLock)
+                serverOwnedInstances.Add(cloud);
+
+            allActors.Add(cloud);
         }
 
         public WFActor spawnFish(string fishType = "fish_spawn")
@@ -125,7 +146,9 @@ namespace Cove.Server
                 pos = Vector3.zero;
 
             WFActor actor = new WFActor(IId, type, pos);
-            serverOwnedInstances.Add(actor);
+            lock (serverActorListLock)
+                serverOwnedInstances.Add(actor);
+            allActors.Add(actor);
 
             instanceSpacePrams["actor_type"] = type;
             instanceSpacePrams["at"] = pos;
@@ -152,28 +175,32 @@ namespace Cove.Server
 
             sendPacketToPlayers(removePacket); // remove
 
-            serverOwnedInstances.Remove(instance);
+            lock (serverActorListLock)
+                serverOwnedInstances.Remove(instance);
         }
 
         private void sendPlayerAllServerActors(CSteamID id)
         {
-            foreach (WFActor actor in serverOwnedInstances)
+            lock (serverActorListLock)
             {
-                Dictionary<string, object> spawnPacket = new Dictionary<string, object>();
-                spawnPacket["type"] = "instance_actor";
+                foreach (WFActor actor in serverOwnedInstances)
+                {
+                    Dictionary<string, object> spawnPacket = new Dictionary<string, object>();
+                    spawnPacket["type"] = "instance_actor";
 
-                Dictionary<string, object> instanceSpacePrams = new Dictionary<string, object>();
-                spawnPacket["params"] = instanceSpacePrams;
+                    Dictionary<string, object> instanceSpacePrams = new Dictionary<string, object>();
+                    spawnPacket["params"] = instanceSpacePrams;
 
-                instanceSpacePrams["actor_type"] = actor.Type;
-                instanceSpacePrams["at"] = actor.pos;
-                instanceSpacePrams["rot"] = new Vector3(0, 0, 0);
-                instanceSpacePrams["zone"] = "main_zone";
-                instanceSpacePrams["zone_owner"] = -1;
-                instanceSpacePrams["actor_id"] = actor.InstanceID;
-                instanceSpacePrams["creator_id"] = (long)SteamUser.GetSteamID().m_SteamID;
+                    instanceSpacePrams["actor_type"] = actor.Type;
+                    instanceSpacePrams["at"] = actor.pos;
+                    instanceSpacePrams["rot"] = new Vector3(0, 0, 0);
+                    instanceSpacePrams["zone"] = "main_zone";
+                    instanceSpacePrams["zone_owner"] = -1;
+                    instanceSpacePrams["actor_id"] = actor.InstanceID;
+                    instanceSpacePrams["creator_id"] = (long)SteamUser.GetSteamID().m_SteamID;
 
-                sendPacketToPlayer(spawnPacket, id);
+                    sendPacketToPlayer(spawnPacket, id);
+                }
             }
         }
 
@@ -190,7 +217,16 @@ namespace Cove.Server
             Dictionary<string, object> blacklistPacket = new();
             blacklistPacket["type"] = "force_disconnect_player";
             blacklistPacket["user_id"] = blacklistedSteamID; // gotta be a string
-            sendPacketToPlayers(blacklistPacket);
+
+            CSteamID blockedPlayer = new CSteamID(ulong.Parse(blacklistedSteamID));
+            foreach (WFPlayer player in AllPlayers.ToList())
+            {
+                if (!player.blockedPlayers.Contains(blockedPlayer))
+                {
+                    sendBlacklistPacketToPlayer(blacklistedSteamID, player.SteamId);
+                    player.blockedPlayers.Add(blockedPlayer);
+                }
+            }
         }
 
         // returns the letter id!

@@ -29,7 +29,6 @@ public class ChatCommands : CovePlugin
     public override void onPlayerJoin(WFPlayer player)
     {
         base.onPlayerJoin(player);
-        Server.messageGlobal($"Server: Se acaba de unir unna personita muy especial saludad a " + player.Username);
     }
 
     public override void onChatMessage(WFPlayer sender, string message)

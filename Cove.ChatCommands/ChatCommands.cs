@@ -309,13 +309,16 @@ public class ChatCommands : CovePlugin
 
                         SendPlayerChatMessage(sender, $"Canvas has {canvas.getChalkImage().Count} chalks");
 
-                        canvas.clearCanvas();
+                        canvas.resetCanvas();
+                        Dictionary<int, object> allChalk = canvas.getChalkPacket();
+                        var chalkPacket = new Dictionary<string, object> { { "type", "chalk_packet" }, { "canvas_id", canvas.canvasID }, { "data", allChalk } };
+                        SendPacketToAll(chalkPacket);
 
                         canvas.loadCanvas();
-                        Dictionary<int, object> allChalk = canvas.getChalkPacket();
+                        allChalk = canvas.getChalkPacket();
                         
                         // split the dictionary into chunks of 100
-                        var chalkPacket = new Dictionary<string, object> { { "type", "chalk_packet" }, { "canvas_id", canvas.canvasID }, { "data", allChalk } };
+                        chalkPacket = new Dictionary<string, object> { { "type", "chalk_packet" }, { "canvas_id", canvas.canvasID }, { "data", allChalk } };
                         SendPacketToAll(chalkPacket);
 
                         SendPlayerChatMessage(sender, "Canvas finished loading! Rejoin to see all changes.");

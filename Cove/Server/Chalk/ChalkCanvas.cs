@@ -53,12 +53,15 @@ namespace Cove.Server.Chalk
             }
         }
 
-        public void clearCanvas()
-        {
+        public void resetCanvas() {
             foreach (KeyValuePair<Vector2, int> entry in chalkImage)
             {
-                chalkImage[entry.Key] = 0;
+                chalkImage[entry.Key] = -1;
             }
+        }
+
+        public void clearCanvas()
+        {
             chalkImage.Clear();
         }
 

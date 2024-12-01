@@ -46,17 +46,24 @@ public class ChatCommands : CovePlugin
                     {
                         SendPlayerChatMessage(sender, "--- HELP ---");
                         SendPlayerChatMessage(sender, "!help - Shows this message");
-                        SendPlayerChatMessage(sender, "!users - Shows all players in the server");
+                        SendPlayerChatMessage(sender, "!users - Shows all players in the server (!players, !list)");
+                        SendPlayerChatMessage(sender, "!uptime - Shows the server uptime (!st)");
+                        if (!IsPlayerAdmin(sender)) return; // only show admins their admin commands
                         SendPlayerChatMessage(sender, "!spawn <actor> - Spawns an actor");
                         SendPlayerChatMessage(sender, "!kick <player> - Kicks a player");
                         SendPlayerChatMessage(sender, "!ban <player> - Bans a player");
-                        SendPlayerChatMessage(sender, "!setjoinable <true/false> - Opens or closes the lobby");
-                        SendPlayerChatMessage(sender, "!refreshadmins - Refreshes the admins list");
-                        SendPlayerChatMessage(sender, "!uptime - Shows the server uptime");
+                        SendPlayerChatMessage(sender, "!setjoinable <true/false> - Opens or closes the lobby (!sj)");
+                        SendPlayerChatMessage(sender, "!refreshadmins - Refreshes the admins list (!ral)");
+                        SendPlayerChatMessage(sender, "!savecanvas - Save all chalk (!sc)" );
+                        SendPlayerChatMessage(sender, "!loadcanvas - Load all chalk (!lc)");
+                        SendPlayerChatMessage(sender, "!resetcanvas - Reset all chalk (!rc)");
+                        SendPlayerChatMessage(sender, "!blockdraw <player> - Block a player from drawing (!bd)");
                     }
                     break;
 
                 case "!users":
+                case "!players":
+                case "!list":
                     if (!IsPlayerAdmin(sender)) return;
 
                     // Get the command arguments
@@ -193,6 +200,7 @@ public class ChatCommands : CovePlugin
                     break;
 
                 case "!setjoinable":
+                case "!sj":
                     {
                         if (!IsPlayerAdmin(sender)) return;
                         string arg = message.Split(" ")[1].ToLower();
@@ -228,6 +236,7 @@ public class ChatCommands : CovePlugin
                     break;
 
                 case "!refreshadmins":
+                case "!ral":
                     {
                         if (!IsPlayerAdmin(sender)) return;
                         Server.readAdmins();
@@ -235,6 +244,7 @@ public class ChatCommands : CovePlugin
                     break;
 
                 case "!uptime":
+                case "!st":
                     {
                         long currentTime = DateTimeOffset.Now.ToUnixTimeSeconds();
                         long uptime = currentTime - serverStartTime;
@@ -271,12 +281,14 @@ public class ChatCommands : CovePlugin
                 
                 case "!pilla":
                     {
+                        if (!IsPlayerAdmin(sender)) return;
                         Server.messageGlobal("Iniciando pilla pilla");
                         PillaPLugin.initPila(GetAllPlayers().ToList());
                     }
                     break;
                 
                 case "!savecanvas":
+                case "!sc":
                 {
                     if (!IsPlayerAdmin(sender)) return;
                     SendPlayerChatMessage(sender, "Saving all canvas...");
@@ -289,6 +301,7 @@ public class ChatCommands : CovePlugin
                 }
 
                 case "!loadcanvas":
+                case "!lc":
                 {
                     if (!IsPlayerAdmin(sender)) return;
                     foreach (ChalkCanvas canvas in Server.chalkCanvas)
@@ -339,6 +352,7 @@ public class ChatCommands : CovePlugin
                 }
 
                 case "!resetcanvas":
+                case "!rc":
                 {
                     if (!IsPlayerAdmin(sender)) return;
                     foreach (ChalkCanvas canvas in Server.chalkCanvas)
@@ -349,7 +363,8 @@ public class ChatCommands : CovePlugin
                     break;
                 }
 
-                case "!blockcanvas":
+                case "!blockdraw":
+                case "!bc":
                 {
                     if (!IsPlayerAdmin(sender)) return;
                     string playerIdent = message.Substring(command.Length + 1);

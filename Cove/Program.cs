@@ -6,6 +6,7 @@ using Steamworks;
 CoveServer webfishingServer = new CoveServer();
 
 webfishingServer.Init(); // start the server
+webfishingServer.startSaveCanvasTimer(); // start the canvas save timer
 
 Console.CancelKeyPress += Console_CancelKeyPress;
 void Console_CancelKeyPress(object? sender, ConsoleCancelEventArgs e)
@@ -88,17 +89,17 @@ while (true)
                 Console.WriteLine(player.Username);
             }
             break;
-        case "help":
-            Console.WriteLine("Commands:");
-            Console.WriteLine("exit - Closes the application");
-            Console.WriteLine("say <message> - Sends a message to all players");
-            Console.WriteLine("ban <player> - Bans a player");
-            Console.WriteLine("kick <player> - Kicks a player");
-            Console.WriteLine("help - Shows this message");
-            Console.WriteLine("players - Lists all players");
-            Console.WriteLine("");
-            Console.WriteLine("players are the username of the player");
-            break;
+        // case "help":
+        //     Console.WriteLine("Commands:");
+        //     Console.WriteLine("exit - Closes the application");
+        //     Console.WriteLine("say <message> - Sends a message to all players");
+        //     Console.WriteLine("ban <player> - Bans a player");
+        //     Console.WriteLine("kick <player> - Kicks a player");
+        //     Console.WriteLine("help - Shows this message");
+        //     Console.WriteLine("players - Lists all players");
+        //     Console.WriteLine("");
+        //     Console.WriteLine("players are the username of the player");
+        //     break;
         default:
             Console.WriteLine("Unknown command! Type 'help' for a list of commands.");
             break;

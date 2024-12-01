@@ -3,10 +3,10 @@ using Cove.Server.Plugins;
 using Cove.GodotFormat;
 using Cove.Server.Actor;
 using Cove.Server.Utils;
+using Cove.Server.Chalk;
 using Microsoft.Extensions.Hosting;
 using Cove.Server.HostedServices;
 using Microsoft.Extensions.Logging;
-using System.Reflection;
 
 namespace Cove.Server
 {
@@ -29,6 +29,11 @@ namespace Cove.Server
 
         public bool showErrorMessages = true;
         public bool friendsOnly = false;
+
+        public int autosaveTime = 10000;
+
+        public bool autosaveEnabled = true;
+
 
         List<string> Admins = new();
         List<string> CanvasBans = new();
@@ -414,6 +419,25 @@ namespace Cove.Server
             foreach (PluginInstance plugin in loadedPlugins)
             {
                 plugin.plugin.onChatMessage(sender, message);
+            }
+        }
+
+        private System.Timers.Timer saveCanvasTimer;
+
+        public void startSaveCanvasTimer()
+        {
+            saveCanvasTimer = new System.Timers.Timer(autosaveTime);
+            saveCanvasTimer.Elapsed += OnPeriodicTask;
+            saveCanvasTimer.AutoReset = true;
+            saveCanvasTimer.Enabled = autosaveEnabled;
+        }
+
+        private void OnPeriodicTask(object sender, System.Timers.ElapsedEventArgs e)
+        {
+            messageGlobal("Autoguardando tizas...");
+            foreach (ChalkCanvas canvas in chalkCanvas)
+            {
+                canvas.saveCanvas();
             }
         }
     }

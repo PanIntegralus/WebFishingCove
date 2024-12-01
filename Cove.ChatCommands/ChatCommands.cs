@@ -309,17 +309,10 @@ public class ChatCommands : CovePlugin
 
                         SendPlayerChatMessage(sender, $"Canvas has {canvas.getChalkImage().Count} chalks");
 
-                        Dictionary<int, object> allChalk = canvas.getChalkPacket();
-
-                        foreach (KeyValuePair<int, object> entry in allChalk)
-                        {
-                            Dictionary<int, object> arr = (Dictionary<int, object>)entry.Value;
-                            Cove.GodotFormat.Vector2 vector2 = (Cove.GodotFormat.Vector2)arr[0];
-                            canvas.drawChalk(vector2, -1);
-                        }
+                        canvas.clearCanvas();
 
                         canvas.loadCanvas();
-                        allChalk = canvas.getChalkPacket();
+                        Dictionary<int, object> allChalk = canvas.getChalkPacket();
                         
                         // split the dictionary into chunks of 100
                         List<Dictionary<int, object>> chunks = new List<Dictionary<int, object>>();

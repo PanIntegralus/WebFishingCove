@@ -47,7 +47,7 @@ namespace Cove.Server
         public bool showErrorMessages = true;
         public bool friendsOnly = false;
 
-        public int autosaveTime = 10000;
+        public int autosaveTime = 30; // IN MINUTES
 
         public bool autosaveEnabled = true;
 
@@ -448,7 +448,7 @@ namespace Cove.Server
 
         public void startSaveCanvasTimer()
         {
-            saveCanvasTimer = new System.Timers.Timer(autosaveTime);
+            saveCanvasTimer = new System.Timers.Timer(autosaveTime * 60 * 1000);
             saveCanvasTimer.Elapsed += OnPeriodicTask;
             saveCanvasTimer.AutoReset = true;
             saveCanvasTimer.Enabled = autosaveEnabled;

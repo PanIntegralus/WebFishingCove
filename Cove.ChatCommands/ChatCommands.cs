@@ -315,30 +315,10 @@ public class ChatCommands : CovePlugin
                         Dictionary<int, object> allChalk = canvas.getChalkPacket();
                         
                         // split the dictionary into chunks of 100
-                        List<Dictionary<int, object>> chunks = new List<Dictionary<int, object>>();
-                        Dictionary<int, object> chunk = new Dictionary<int, object>();
+                        var chalkPacket = new Dictionary<string, object> { { "type", "chalk_packet" }, { "canvas_id", canvas.canvasID }, { "data", allChalk } };
+                        SendPacketToAll(chalkPacket);
 
-                        int i = 0;
-                        foreach (var kvp in allChalk)
-                        {
-                            if (i >= 1000)
-                            {
-                                chunks.Add(chunk);
-                                chunk = new Dictionary<int, object>();
-                                i = 0;
-                            }
-                            chunk.Add(i, kvp.Value);
-                            i++;
-                        }
-
-                        for (int index = 0; index < chunks.Count; index++)
-                        {
-                            Dictionary<string, object> chalkPacket = new Dictionary<string, object> { { "type", "chalk_packet" }, { "canvas_id", canvas.canvasID }, { "data", chunks[index] } };
-                            SendPacketToAll(chalkPacket);
-                            Thread.Sleep(10);
-                        }
-
-                        SendPlayerChatMessage(sender, "Canvas finished loading! Rejoin to see changes.");
+                        SendPlayerChatMessage(sender, "Canvas finished loading! Rejoin to see all changes.");
                     }
                     break;
                 }

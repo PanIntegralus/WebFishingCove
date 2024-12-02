@@ -17,7 +17,7 @@ namespace Cove.Server.Chalk
 
         public void drawChalk(Vector2 position, int color)
         {
-            var key = (position.x, position.y);
+            var key = ((int)position.x, (int)position.y);
             chalkImage[key] = color;
         }
 

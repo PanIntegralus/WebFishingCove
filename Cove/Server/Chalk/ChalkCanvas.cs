@@ -52,7 +52,7 @@ namespace Cove.Server.Chalk
             {
                 var arr = (Dictionary<int, object>)entry.Value;
                 var position = (Vector2)arr[0];
-                var key = (position.x, position.y);
+                var key = ((int)position.x, (int)position.y);
                 long color = (long)arr[1];
 
                 chalkImage[key] = (int)color;

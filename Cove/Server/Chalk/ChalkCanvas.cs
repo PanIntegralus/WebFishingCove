@@ -17,7 +17,7 @@ namespace Cove.Server.Chalk
 
         public void drawChalk(Vector2 position, int color)
         {
-            var key = ((int)position.x, (int)position.y);
+            var key = (position.x, position.y);
             chalkImage[key] = color;
         }
 
@@ -76,7 +76,7 @@ namespace Cove.Server.Chalk
             List<string> lines = new List<string>();
             foreach(var pair in chalkImage)
             {
-                string line = $"{pair.Key.Item1}:{pair.Key.Item2}:{pair.Value}";
+                string line = $"{(int)pair.Key.Item1}:{(int)pair.Key.Item2}:{pair.Value}";
                 lines.Add(line);
             }
             File.WriteAllLines($"chalk_{canvasID}.txt", lines);

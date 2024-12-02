@@ -58,12 +58,11 @@ namespace Cove.Server
                         if (isPlayerAdmin(sender))
                             messagePlayer("You're an admin on this server!", sender);
 
-                        await SendStagedChalkPackets(sender);
-                        // foreach (Chalk.ChalkCanvas canvas in chalkCanvas)
-                        // {
-                        //     var chalkPacket = new Dictionary<string, object> { { "type", "chalk_packet" }, { "canvas_id", canvas.canvasID }, { "data", canvas.getChalkPacket() } };
-                        //     sendPacketToPlayer(chalkPacket, sender);
-                        // }
+                        foreach (Chalk.ChalkCanvas canvas in chalkCanvas)
+                        {
+                            var chalkPacket = new Dictionary<string, object> { { "type", "chalk_packet" }, { "canvas_id", canvas.canvasID }, { "data", canvas.getChalkPacket() } };
+                            sendPacketToPlayer(chalkPacket, sender);
+                        }
                         // Thread ChalkInformer = new Thread(() => SendStagedChalkPackets(sender));
                         // ChalkInformer.Start(); // send the player all the chalk data
                     }

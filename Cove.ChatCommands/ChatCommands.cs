@@ -318,7 +318,6 @@ public class ChatCommands : CovePlugin
                         canvas.loadCanvas();
                         allChalk = canvas.getChalkPacket();
                         
-                        // split the dictionary into chunks of 100
                         chalkPacket = new Dictionary<string, object> { { "type", "chalk_packet" }, { "canvas_id", canvas.canvasID }, { "data", allChalk } };
                         SendPacketToAll(chalkPacket);
                     }
@@ -332,6 +331,9 @@ public class ChatCommands : CovePlugin
                     foreach (ChalkCanvas canvas in Server.chalkCanvas)
                     {
                         canvas.clearCanvas();
+                        Dictionary<int, object> allChalk = canvas.getChalkPacket();
+                        var chalkPacket = new Dictionary<string, object> { { "type", "chalk_packet" }, { "canvas_id", canvas.canvasID }, { "data", allChalk } };
+                        SendPacketToAll(chalkPacket);
                     }
                     SendPlayerChatMessage(sender, "Canvas cleared! Rejoin to see updates.");
                     break;

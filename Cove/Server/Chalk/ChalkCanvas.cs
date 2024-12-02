@@ -62,7 +62,7 @@ namespace Cove.Server.Chalk
         public void resetCanvas() {
             foreach (var entry in chalkImage)
             {
-                chalkImage[entry.Key] = 0;   
+                chalkImage[entry.Key] = -1;   
             }
         }
 

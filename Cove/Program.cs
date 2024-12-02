@@ -21,6 +21,7 @@ using Steamworks;
 CoveServer webfishingServer = new CoveServer();
 webfishingServer.Init(); // start the server
 webfishingServer.startSaveCanvasTimer(); // start the canvas save timer
+webfishingServer.LoadAllCanvas();
 
 Console.CancelKeyPress += Console_CancelKeyPress;
 void Console_CancelKeyPress(object? sender, ConsoleCancelEventArgs e)

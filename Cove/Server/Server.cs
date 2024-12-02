@@ -462,5 +462,21 @@ namespace Cove.Server
                 canvas.saveCanvas();
             }
         }
+
+        public void LoadAllCanvas()
+        {
+            // for each file with name "chalk_*.txt"
+            string[] files = Directory.GetFiles(AppDomain.CurrentDomain.BaseDirectory, "chalk_*.txt");
+            foreach (string file in files)
+            {
+                long canvasID = long.Parse(file.Replace("chalk_", "").Replace(".txt", ""));
+                ChalkCanvas canvas = new ChalkCanvas(canvasID);
+                chalkCanvas.Add(canvas);
+            }
+            foreach (ChalkCanvas canvas in chalkCanvas)
+            {
+                canvas.loadCanvas();
+            }
+        }
     }
 }

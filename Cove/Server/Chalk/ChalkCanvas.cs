@@ -1,13 +1,14 @@
 ﻿using Cove.GodotFormat;
 using System;
 using System.IO;
+using System.Runtime.InteropServices;
 
 namespace Cove.Server.Chalk
 {
     public class ChalkCanvas
     {
         public long canvasID;
-        Dictionary<Vector2, int> chalkImage = new Dictionary<Vector2, int>();
+        Dictionary<(float, float), int> chalkImage = new();
 
         public ChalkCanvas(long canvasID)
         {
@@ -16,7 +17,8 @@ namespace Cove.Server.Chalk
 
         public void drawChalk(Vector2 position, int color)
         {
-            chalkImage[position] = color;
+            var key = (position.x, position.y);
+            chalkImage[key] = color;
         }
 
         public Dictionary<int, object> getChalkPacket()
@@ -24,11 +26,14 @@ namespace Cove.Server.Chalk
 
             Dictionary<int, object> packet = new Dictionary<int, object>();
             ulong i = 0;
-            foreach (KeyValuePair<Vector2, int> entry in chalkImage.ToList())
+            foreach (var entry in chalkImage.ToList())
             {
-                Dictionary<int, object> arr = new();
-                arr[0] = entry.Key;
-                arr[1] = entry.Value;
+                var position = new Vector2(entry.Key.Item1, entry.Key.Item2);
+                Dictionary<int, object> arr = new()
+                {
+                    [0] = position,
+                    [1] = entry.Value
+                };
                 packet[(int)i] = arr;
                 i++;
             }
@@ -36,27 +41,28 @@ namespace Cove.Server.Chalk
             return packet;
         }
 
-        public Dictionary<Vector2, int> getChalkImage()
+        public Dictionary<(float, float), int> getChalkImage()
         {
             return chalkImage;
         }
 
         public void chalkUpdate(Dictionary<int, object> packet)
         {
-            foreach (KeyValuePair<int, object> entry in packet)
+            foreach (var entry in packet)
             {
-                Dictionary<int, object> arr = (Dictionary<int, object>)entry.Value;
-                Vector2 vector2 = (Vector2)arr[0];
-                Int64 color = (Int64)arr[1];
+                var arr = (Dictionary<int, object>)entry.Value;
+                var position = (Vector2)arr[0];
+                var key = (position.x, position.y);
+                long color = (long)arr[1];
 
-                chalkImage[vector2] = (int)color;
+                chalkImage[key] = (int)color;
             }
         }
 
         public void resetCanvas() {
-            foreach (KeyValuePair<Vector2, int> entry in chalkImage)
+            foreach (var entry in chalkImage)
             {
-                chalkImage[entry.Key] = -1;
+                chalkImage[entry.Key] = 0;   
             }
         }
 
@@ -67,10 +73,10 @@ namespace Cove.Server.Chalk
 
         public void saveCanvas()
         {
-            HashSet<string> lines = new HashSet<string>();
+            List<string> lines = new List<string>();
             foreach(var pair in chalkImage)
             {
-                string line = $"{pair.Key.x}:{pair.Key.y}:{pair.Value}";
+                string line = $"{pair.Key.Item1}:{pair.Key.Item2}:{pair.Value}";
                 lines.Add(line);
             }
             File.WriteAllLines($"chalk_{canvasID}.txt", lines);
@@ -79,7 +85,6 @@ namespace Cove.Server.Chalk
         public void loadCanvas()
         {
             var lines = File.ReadAllLines($"chalk_{canvasID}.txt");
-
             clearCanvas();
 
             foreach (var line in lines)
@@ -92,8 +97,8 @@ namespace Cove.Server.Chalk
                     float.TryParse(parts[1], out float y) &&
                     int.TryParse(parts[2], out int color))
                     {
-                        var vector = new Vector2(x, y);
-                        chalkImage[vector] = color;
+                        var key  = (x, y);
+                        chalkImage[key] = color;
                     }
                 }
             }
